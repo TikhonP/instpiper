@@ -1,0 +1,28 @@
+<!doctype html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Inst Piper | регистрация</title>
+  <meta name="description" content="Офицальный сайт Inst Piper">
+  <meta name="author" content="Inst Piper Ltd.">
+
+</head>
+
+<body>
+  <center>
+    <h1>Регистрация</h1>
+    <form method="post">
+      {% csrf_token %}
+      <input required type="text" name="firstName" placeholder="Имя"/>
+      <input required type="text" name="lastName" placeholder="Фамилия"/>
+      <input required type="email" name="email" placeholder="Email"/>
+      <input required type="text" name="login" placeholder="Username"/>
+      <input required type="password" name="password1" placeholder="Пароль"/>
+      <input required type="password" name="password2" placeholder="Повторите пароль"/>
+      <button class="button" type="submit">Регестрация</button>
+    </form>
+  </center>
+</body>
+</html>

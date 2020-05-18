@@ -1,0 +1,34 @@
+<!doctype html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+
+  <title>Inst Piper</title>
+  <meta name="description" content="Офицальный сайт Inst Piper">
+  <meta name="author" content="Inst Piper Ltd.">
+
+</head>
+
+<body>
+  <center>
+    <h1>Inst Piper!</h1>
+    
+    <p>Вы авторизовались как {{ user.username }}. <a href='logout/'>Выйти</a></p>
+
+    {% if tokens_null %}
+    <h2>У вас нет токенов</h2>
+    {% else %}
+    {% for i in tokens %}
+    <p>-------------------</p>
+    <p>{{ i.token }}</p>
+    <p>Валидный -  {{ i.is_valid }}</p>
+    <a href="removetoken?token={{ i.token }}">Удалить</a>
+    {% endfor %}
+    <p>-------------------</p>
+    {% endif %}
+    <a href="addtoken/">Добавить Токен</a>
+
+  </center>
+</body>
+</html>

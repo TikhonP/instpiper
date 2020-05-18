@@ -1,0 +1,24 @@
+<!doctype html>
+
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  
+  <title>Inst Piper | вход</title>
+  <meta name="description" content="Офицальный сайт Inst Piper">
+  <meta name="author" content="Inst Piper Ltd.">
+
+</head>
+
+<body>
+  <center>
+    <h1>Вход</h1>
+    <form method="post">
+      {% csrf_token %}
+      <input required type="text" name="login" placeholder="Username"/>
+      <input required type="password" name="password" placeholder="Password"/>
+      <button class="button" type="submit">Войти</button>
+    </form>
+  </center>
+</body>
+</html>
