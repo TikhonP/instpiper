@@ -13,3 +13,4 @@ class Req(models.Model):
     data = models.TextField()
     response = models.TextField(null=True, default=None)
     is_done = models.BooleanField(default=False)
+    task = models.CharField(max_length=20)
