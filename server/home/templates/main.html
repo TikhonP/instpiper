@@ -1,25 +1,25 @@
-<!doctype html>
+{% extends "base.html" %}
+{% load static %}
 
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
+{% block title %} | Главная{% endblock %}
 
-  <title>Inst Piper</title>
-  <meta name="description" content="Офицальный сайт Inst Piper">
-  <meta name="author" content="Inst Piper Ltd.">
+{% block nav %}
+  <li class="nav-item">
+    <a class="nav-link" href="login/">Войти</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="register/">Зарегистрироваться</a>
+  </li>
+{% endblock %}
 
-</head>
-
-<body>
-  <center>
-    <h1>Inst Piper!</h1>
-     
-    <a href='login/'>Войти</a>
-    <a href='register/'>Регистрация</a>
-   
-    <p>Супер пупер апи для ИНСТАГРАММА</p>
-
-
-  </center>
-</body>
-</html>
+{% block content %}
+<center>
+<div class="col-sm-4">
+<div class="card">
+  <div class="card-body">
+    Супер Пупер API для ИНСТАГРАММА
+  </div>
+</div>
+</div>
+</center>
+{% endblock %}

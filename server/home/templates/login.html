@@ -1,24 +1,38 @@
-<!doctype html>
+{% extends "base.html" %}
+{% load static %}
 
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  
-  <title>Inst Piper | вход</title>
-  <meta name="description" content="Офицальный сайт Inst Piper">
-  <meta name="author" content="Inst Piper Ltd.">
+{% block title %} | Аунтификация{% endblock %}
 
-</head>
+{% block nav %}
+ <li class="nav-item">
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">ВХОД</a>
+ </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/register/">Зарегистрироваться</a>
+  </li>
+{% endblock %}
 
-<body>
-  <center>
-    <h1>Вход</h1>
-    <form method="post">
-      {% csrf_token %}
-      <input required type="text" name="login" placeholder="Username"/>
-      <input required type="password" name="password" placeholder="Password"/>
-      <button class="button" type="submit">Войти</button>
-    </form>
-  </center>
-</body>
-</html>
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  <div class="form-group">
+    <label for="exampleInputEmail1">Имя Пользователя</label>
+    <input required type="text" name="login" placeholder="vasek228" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"/>
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Пароль</label>
+    <input required type="password" name="password" placeholder="123321" class="form-control" id="exampleInputPassword1"/>
+  </div>
+  <button class="btn btn-primary btn-block" type="submit">Войти 🗝</button>
+</form>
+<br>
+{% if messages %}
+<ul>
+  {% for message in messages %}
+  <div class="alert alert-danger" role="alert">
+    {{ message }}
+  </div>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

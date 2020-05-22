@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from api.models import Token, Req
 from secrets import token_hex
 import requests
+from django.contrib import messages
 
 
 domen = 'http://127.0.0.1:8000' 
@@ -32,7 +33,8 @@ def loginp(request):
             if user:
                 login(request, user)
             else:
-                return HttpResponse('Invalid username or password')
+                messages.error(request, 'Неправильный логин или пароль!')
+                return redirect('/login')
             return redirect('/')
         else:
             return HttpResponse('Invalid requsest method ({}) Must be GET or POST'.format(request.method))
@@ -50,7 +52,8 @@ def registerp(request):
             username = request.POST['login']
             email = request.POST['email']
             if password1 != password2:
-                return HttpResponse('Passwords id not same')
+                messages.error(request, 'Пароли не совпадают! Проверьте правильность ввода паролей или придумайте новые.')
+                return redirect('/login')
             user = authenticate(username=username, password=password1)
             if not user:
                 user = User.objects.create_user(
@@ -63,7 +66,8 @@ def registerp(request):
                 user.save()
                 login(request, user)
             else:
-                return HttpResponse('Username already exists')
+                messages.error(request, 'Логин уже существует! Придумайте новый, проявите фантазию!')
+                return redirect('/login')
             return redirect('/')
         else:
             return HttpResponse('Invalid requsest method ({}) Must be GET or POST'.format(request.method))
