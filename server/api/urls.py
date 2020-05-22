@@ -8,4 +8,3 @@ urlpatterns = [
     path('checkrequest', views.CheckComplite, name='CheckComplite'),
     path('getdata', views.GetData, name='GetData'),
 ]
- 

@@ -9,5 +9,5 @@ urlpatterns = [
     path('logout/', views.logoutp, name='logout'),
     path('addtoken/', views.addtoken, name='addtoken'),
     path('removetoken/', views.removetoken, name='removetoken'),
+    path('makerequest/', views.makerequest, name='makerequest'),
 ]
- 

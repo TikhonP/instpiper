@@ -16,12 +16,12 @@ def CreateRecRequest(request):
             return JsonResponse({'status': 0, 'error': 'Did not get TOKEN argument, you must add token'})
         token = request.GET.get('token', '')
         t = Token.objects.filter(token=token, is_valid=True)
-        if len(t)==0:
+        if len(t) == 0:
             return JsonResponse({'status': 0, 'error': 'Invalid token'})
         data = request.body.decode('utf-8')
 
         task = token_hex(20)
-        r = Req(token=t[0], data=data, task=task)
+        r = Req(author=t[0].author, token=t[0], data=data, task=task)
         r.save()
 
         return JsonResponse({'status': 1, 'task': task})
@@ -31,16 +31,16 @@ def CreateRecRequest(request):
 
 @csrf_exempt
 def privateapi(request):
-    ''' controls tasks for reqognition '''
+    """controls tasks for reqognition."""
 
     if 'token' not in request.GET:
         return JsonResponse({'status': 0, 'error': 'Did not get TOKEN argument, you must add token'})
     if request.GET.get('token', '') not in validtokens:
         return JsonResponse({'status': 0, 'error': 'Invalid token'})
-    
+
     if request.method == 'GET':
         r = Req.objects.filter(is_done=False)
-        if len(r)==0:
+        if len(r) == 0:
             return JsonResponse({'status': 1, 'data': 0})
 
         response = []
@@ -55,7 +55,7 @@ def privateapi(request):
         r.response = data['data']
         r.is_done = True
         r.save()
-        
+
         return JsonResponse({'status': 1})
     else:
         return JsonResponse({'status': 0, 'error': 'Invalid request method ({}). Must be GET or POST.'.format(request.method)})
@@ -68,9 +68,9 @@ def CheckComplite(request):
             return JsonResponse({'status': 0, 'error': 'Did not get TOKEN argument, you must add token'})
         token = request.GET.get('token', '')
         t = Token.objects.filter(token=token, is_valid=True)
-        if len(t)==0:
+        if len(t) == 0:
             return JsonResponse({'status': 0, 'error': 'Invalid token'})
-        
+
         data = json.loads(request.body)
         r = Req.objects.get(task=data['task'])
         if r is None:
@@ -89,9 +89,9 @@ def GetData(request):
             return JsonResponse({'status': 0, 'error': 'Did not get TOKEN argument, you must add token'})
         token = request.GET.get('token', '')
         t = Token.objects.filter(token=token, is_valid=True)
-        if len(t)==0:
+        if len(t) == 0:
             return JsonResponse({'status': 0, 'error': 'Invalid token'})
-        
+
         data = json.loads(request.body)
         r = Req.objects.get(task=data['task'])
         if r is None:
@@ -104,5 +104,3 @@ def GetData(request):
         return JsonResponse({'status': 1, 'data': r.response})
     else:
         return JsonResponse({'status': 0, 'error': 'Invalid request method ({}). Must be GET.'.format(request.method)})
-
-

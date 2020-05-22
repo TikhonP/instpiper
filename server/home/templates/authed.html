@@ -17,8 +17,9 @@
     <p>Вы авторизовались как {{ user.username }}. <a href='logout/'>Выйти</a></p>
 
     {% if tokens_null %}
-    <h2>У вас нет токенов</h2>
+    <h3>У вас нет токенов</h3>
     {% else %}
+    <h3>Api Токены</h3>
     {% for i in tokens %}
     <p>-------------------</p>
     <p>{{ i.token }}</p>
@@ -28,7 +29,25 @@
     <p>-------------------</p>
     {% endif %}
     <a href="addtoken/">Добавить Токен</a>
-
+    
+    <p>/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\</p>
+    {% if requests_null %}
+    <h3>Вы не сделали еще ни одного запроса. <a href="makerequest/">Попробуйте</a></h3>
+    {% else %}
+    <h3>Запросы</h3>
+    {% for i in req %}
+    <p>-------------------</p>
+    <p>{{ i.date }} ({{ i.task }})</p>
+    <p>Тело запроса: <textarea>{{ i.data }}</textarea></p>
+    {% if i.is_done %}
+    <p>Ответ: <textarea>{{ i.response }}</textarea></p>
+    {% else %}
+    <p>Ответ еще не получен</p>
+    {% endif %}
+    {% endfor %}
+    <p>-------------------</p>
+    <a href="makerequest/">Сделать запрос</a>
+    {% endif %}
   </center>
 </body>
 </html>
