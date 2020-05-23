@@ -4,9 +4,11 @@ from .models import Token, Req
 from secrets import token_hex
 import json
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 
-validtokens = ['123']
+with open('../config.json', 'r') as f:
+    validtokens = json.load(f)['private_tokens']
 
 
 @csrf_exempt

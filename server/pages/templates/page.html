@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %} | {{ title }}{% endblock %}
+
+{% block nav %}
+<li class="nav-item">
+  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">{{ title }}</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-sm">
+  {{ page.html_field|safe }}
+  <a href="javascript:history.back()" class="btn btn-secondary btn-sm">Назад</a>
+</div>
+{% endblock %}

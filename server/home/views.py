@@ -6,9 +6,11 @@ from api.models import Token, Req
 from secrets import token_hex
 import requests
 from django.contrib import messages
+import json
 
 
-domen = 'http://176.118.213.151' 
+with open('../config.json', 'r') as f:
+    domen = json.load(f)['domen']
 
 def main(request):
     if request.user.is_authenticated:
