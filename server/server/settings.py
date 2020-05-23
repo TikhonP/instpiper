@@ -16,6 +16,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     '192.168.31.207',
+    '176.118.213.151',
+    'localhost',
 ]
 
 
@@ -112,3 +114,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')

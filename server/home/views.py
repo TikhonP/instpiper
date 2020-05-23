@@ -8,7 +8,7 @@ import requests
 from django.contrib import messages
 
 
-domen = 'http://127.0.0.1:8000' 
+domen = 'http://176.118.213.151' 
 
 def main(request):
     if request.user.is_authenticated:
