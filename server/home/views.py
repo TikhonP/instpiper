@@ -83,14 +83,38 @@ def authed(request):
         requests_null = False
         if len(r) == 0:
             requests_null = True
+
+        rt = Token.objects.filter(author=request.user, is_valid=True)
+        req_tokens_null = False
+        if len(t) == 0:
+           req_tokens_null = True
+
         params = {
             'user': request.user,
             'tokens': t,
             'tokens_null': tokens_null,
             'req': r,
             'requests_null': requests_null,
+            'req_tokens': rt,
+            'req_tokens_null': req_tokens_null,
         }
         return render(request, 'authed.html', params)
+    elif request.method == 'POST':
+        if 'makerequest' in request.POST:
+            return makerequest(request)
+        elif 'pdatasubm' in request.POST:
+            LastName = request.POST.get('LastName', '')
+            FirstName = request.POST.get('FirstName', '')
+            username = request.POST.get('username', '')
+            email = request.POST.get('email', '')
+
+            user = request.user
+            user.first_name = FirstName
+            user.last_name = LastName
+            user.email = email
+            user.username = username
+            user.save()
+            return redirect('/')
     else:
         return HttpResponse('Invalid requsest method ({}) Must be GET or POST'.format(request.method))
 
@@ -134,31 +158,24 @@ def makerequest(request):
     if not request.user.is_authenticated:
         return redirect('/')
     else:
-        if request.method == 'GET':
-            t = Token.objects.filter(author=request.user, is_valid=True)
-            tokens_null = False
-            if len(t) == 0:
-                tokens_null = True
-
-            params = {
-                'tokens': t,
-                'tokens_null': tokens_null,
-            }
-            return render(request, 'makerequest.html', params)
-        elif request.method == 'POST':
+        if request.method == 'POST':
             token = request.POST['token']
             data = request.POST['data']
-            
+            if len(request.FILES)!=0:
+                try:
+                    data = request.FILES['fileinput'].read().decode()
+                except UnicodeDecodeError:
+                    messages.error(request, 'Непраильный типа файла, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
+                    return redirect('/')
             url = '{}/api/createrequest'.format(domen)
             params = {'token': token}
             answer = requests.post(url, params=params, data=data.encode())
             answer = answer.json()
-            print(answer)
             if answer['status']:
                 return redirect('/')
             else:
                 return HttpResponse(answer)
         else:
-            return HttpResponse('Invalid requsest method ({}) Must be GET or POST'.format(request.method))
+            return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
 
 

@@ -1,53 +1,188 @@
-<!doctype html>
+{% extends "base.html" %}
+{% load static %}
 
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
+{% block title %} | {{ user.first_name }}{% endblock %}
 
-  <title>Inst Piper</title>
-  <meta name="description" content="Офицальный сайт Inst Piper">
-  <meta name="author" content="Inst Piper Ltd.">
+{% block nav %}
+<li class="nav-item">
+  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Привет {{ user.first_name }}!</a>
+</li>
+{% endblock %}
 
-</head>
+{% block endnav %}
+<a href="/logout/"><button class="btn btn-outline-dark my-2 my-sm-0">Выйти</button></a>
+{% endblock %}
 
-<body>
-  <center>
-    <h1>Inst Piper!</h1>
-    
-    <p>Вы авторизовались как {{ user.username }}. <a href='logout/'>Выйти</a></p>
+{% block content %}
+{% if messages %}
+<ul>
+  {% for message in messages %}
+  <div class="alert alert-danger" role="alert">
+    {{ message }}
+  </div>
+  {% endfor %}
+</ul>
+{% endif %} 
+<div class="row">
+  <div class="col-3">
+    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+      <a class="nav-link active" id="tokens-tab" data-toggle="pill" href="#tokens" role="tab" aria-controls="tokens" aria-selected="true">Токены</a>
+      <a class="nav-link" id="requests-tab" data-toggle="pill" href="#requests" role="tab" aria-controls="requests" aria-selected="false">Запросы</a>
+      <a class="nav-link" id="settins-tab" data-toggle="pill" href="#settings" role="tab" aria-controls="settings" aria-selected="false">Настройки</a>
+      <a class="nav-link" id="makerequest-tab" data-toggle="pill" href="#makerequest" role="tab" aria-controls="makerequest" aria-selected="false">Сделать Запрос</a>
+    </div>
+  </div>
+  <div class="col-9">
+    <div class="tab-content" id="v-pills-tabContent">
+      <div class="tab-pane fade show active" id="tokens" role="tabpanel" aria-labelledby="tokens-tab">
+        <a href="addtoken/"><button type="button" class="btn btn-secondary btn-md btn-block">Добавить Токен</button></a>
+        <br>
+        {% if tokens_null %}
+        <h3>У вас нет токенов, создайте один 👆</h3>
+        {% else %}
+        {% for i in tokens %}
+        <div class="card shadow {% if i.is_valid %}border-success{% else %}border-danger{% endif %}">
+          <div class="card-header">{% if i.is_valid %}Валидный{% else %}Невалидный{% endif %}</div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <code>{{ i.token }}</code>
+            </li>
+            <li class="list-group-item">
+              Был создан {{ i.date }}
+            </li>
+            <li class="list-group-item">
+              <a href="removetoken?token={{ i.token }}" class="btn btn-primary btn-block">Удалить</a>
+            </li>
+          </ul>
+        </div>
+        <br>
+        {% endfor %}
+        {% endif %}
+      </div>
+      <div class="tab-pane fade" id="requests" role="tabpanel" aria-labelledby="requests-tab">
+        {% if requests_null %}
+        <h3>Вы не сделали еще ни одного запроса. <a href="#makerequest"  data-toggle="pill" role="tab" aria-controls="makerequest">Попробуйте!</a></h3>
+        {% else %}
+        {% for i in req %}
+        <div class="shadow accordion" id="accordion{{ i.task }}">
+          <div class="card">
+            <div class="card-header">{{ i.date }}</div>
+            <div class="card-body">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                  TASK ID - <code>{{ i.task }}</code>
+              </ul>
 
-    {% if tokens_null %}
-    <h3>У вас нет токенов</h3>
-    {% else %}
-    <h3>Api Токены</h3>
-    {% for i in tokens %}
-    <p>-------------------</p>
-    <p>{{ i.token }}</p>
-    <p>Валидный -  {{ i.is_valid }}</p>
-    <a href="removetoken?token={{ i.token }}">Удалить</a>
-    {% endfor %}
-    <p>-------------------</p>
-    {% endif %}
-    <a href="addtoken/">Добавить Токен</a>
-    
-    <p>/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\</p>
-    {% if requests_null %}
-    <h3>Вы не сделали еще ни одного запроса. <a href="makerequest/">Попробуйте</a></h3>
-    {% else %}
-    <h3>Запросы</h3>
-    {% for i in req %}
-    <p>-------------------</p>
-    <p>{{ i.date }} ({{ i.task }})</p>
-    <p>Тело запроса: <textarea>{{ i.data }}</textarea></p>
-    {% if i.is_done %}
-    <p>Ответ: <textarea>{{ i.response }}</textarea></p>
-    {% else %}
-    <p>Ответ еще не получен</p>
-    {% endif %}
-    {% endfor %}
-    <p>-------------------</p>
-    <a href="makerequest/">Сделать запрос</a>
-    {% endif %}
-  </center>
-</body>
-</html>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="heading{{ i.task }}">
+              <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse{{ i.task }}" aria-expanded="false" aria-controls="collapse{{ i.task }}">
+                  Показать содержимое запроса
+                </button>
+              </h2>
+            </div>
+            <div id="collapse{{ i.task }}" class="collapse" aria-labelledby="heading{{ i.task }}" data-parent="#accordion{{ i.task }}">
+              <div class="card-body">
+                {{ i.data }}
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            {% if i.is_done %}
+            <div class="card-header" id="heading{{ i.task }}2">
+              <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse{{ i.task }}2" aria-expanded="false" aria-controls="collapse{{ i.task }}2">
+                  Показать содержимое ответа
+                </button>
+              </h2>
+            </div>
+            <div id="collapse{{ i.task }}2" class="collapse" aria-labelledby="heading{{ i.task }}2" data-parent="#accordion{{ i.task }}">
+              <div class="card-body">
+                {{ i.data }}
+              </div>
+            </div>
+            {% else %}
+            <div class="card-body">
+              Ответ еще не получен, ожидайте.
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <br>
+        {% endfor %}
+        {% endif %}
+      </div>
+      <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+       <h1>Профиль</h1>
+<p></p>
+<form method="POST" name="privdata">
+  {% csrf_token %}
+  <div class="input-group">
+    <div class="input-group-prepend">
+      <span class="input-group-text">Имя и Фамилия</span>
+    </div>
+    <input required name="FirstName" type="text" aria-label="First name" class="form-control" value="{{ user.first_name }}" placeholder="Сменивший Имя">
+    <input name="LastName" type="text" aria-label="Last name" class="form-control" value="{{ user.last_name }}" placeholder="Сменивший Фамилию">
+  </div>
+  <p></p>
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Имя Пользователя</span>
+    </div>
+    <input required name="username" type="text" class="form-control" placeholder="__nick_changer__" aria-label="Имя пользователя" aria-describedby="basic-addon1" value="{{ user.username }}">
+  </div>
+  <p></p>
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Email</span>
+    </div>
+    <input required name="email" type="text" class="form-control" placeholder="mailer@inspiper.ru" aria-label="email" aria-describedby="basic-addon1" value="{{ user.email }}">
+  </div>
+  <p></p>
+  <div class="form-group">
+    <input name="pdatasubm" type="submit" class="form-control" id="exampleInputEmail1" aria-describedby="submitHelp" value="Сохранить">
+  </div>
+</form>
+<p></p>
+<p>Последний раз вы заходили {{ user.last_login }}</p> 
+      </div>
+      <div class="tab-pane fade" id="makerequest" role="tabpanel" aria-labelledby="makerequest-tab">
+        {% if req_tokens_null %}
+        <h3>У вас нет активных токенов. <a href="/addtoken/">Добавьте токен</a> и пройдите валидацию.</h3>
+        {% else %}
+        <form method="post" name="makerequest" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <label class="input-group-text" for="inputGroupSelect01">Выберите токен</label>
+            </div>
+            <select class="custom-select" id="inputGroupSelect01" name="token">
+              <option disabled>Выберите Токен</option>
+              {% for i in req_tokens %}
+              <option>{{ i.token }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="exampleFormControlTextarea1">Введите данные или оставьте пустым про вводе из файла</label>
+            <textarea class="form-control" id="exampleFormControlTextarea1" name="data"></textarea>
+          </div>
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroupFileAddon01">Загрузка файла</span>
+            </div>
+            <div class="custom-file">
+              <input name="fileinput" type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+              <label class="custom-file-label" for="inputGroupFile01">Выберите файл</label>
+            </div>
+          </div>
+          <input class="btn btn-dark btn-md btn-block" name="makerequest" value="Сделать Запрос" type="submit"> 
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
