@@ -4,6 +4,7 @@ import datetime
 
 
 class Token(models.Model):
+    name = models.CharField(max_length=50, default='No Name')
     date = models.DateTimeField(("Date"), default=datetime.date.today)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     token = models.TextField()
@@ -16,5 +17,5 @@ class Req(models.Model):
     token = models.ForeignKey(Token, on_delete=models.SET("Token Deleted"))
     data = models.TextField()
     response = models.TextField(null=True, default=None)
-    is_done = models.BooleanField(default=False)
+    is_done = models.IntegerField(default=0)
     task = models.CharField(max_length=20)

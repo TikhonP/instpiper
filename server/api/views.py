@@ -4,7 +4,6 @@ from .models import Token, Req
 from secrets import token_hex
 import json
 from django.views.decorators.csrf import csrf_exempt
-import json
 
 
 with open('../config.json', 'r') as f:
@@ -17,9 +16,10 @@ def CreateRecRequest(request):
         if 'token' not in request.GET:
             return JsonResponse({'status': 0, 'error': 'Did not get TOKEN argument, you must add token'})
         token = request.GET.get('token', '')
+        print(token)
         t = Token.objects.filter(token=token, is_valid=True)
         if len(t) == 0:
-            return JsonResponse({'status': 0, 'error': 'Invalid token'})
+            return JsonResponse({'status': 0, 'error': 'Invalid token, got {}'.format(token)})
         data = request.body.decode('utf-8')
 
         task = token_hex(20)
@@ -41,7 +41,7 @@ def privateapi(request):
         return JsonResponse({'status': 0, 'error': 'Invalid token'})
 
     if request.method == 'GET':
-        r = Req.objects.filter(is_done=False)
+        r = Req.objects.filter(is_done=0)
         if len(r) == 0:
             return JsonResponse({'status': 1, 'data': 0})
 
@@ -55,12 +55,27 @@ def privateapi(request):
 
         r = Req.objects.get(task=data['task'])
         r.response = data['data']
-        r.is_done = True
+        r.is_done = 100
         r.save()
+        return JsonResponse({'status': 1})
+    elif request.method == 'PATCH':
+        data = json.loads(request.body)
 
+        r = Req.objects.get(task=data['task'])
+        if r.is_done == 100:
+            return JsonResponse({'status': 0, 'error': 'Task already done'})
+        elif data['is_done'] not in range(1, 101):
+            return JsonResponse({'status': 0, 'error': 'IS_DONE is out of range. Must be from 1 to 100, but got {}'.format(data['is_done'])})
+        r.is_done = int(data['is_done'])
+        print(data['data'], type(data['data']))
+        if r.response is None:
+            r.response = data['data']
+        else:
+            r.response += data['data']
+        r.save()
         return JsonResponse({'status': 1})
     else:
-        return JsonResponse({'status': 0, 'error': 'Invalid request method ({}). Must be GET or POST.'.format(request.method)})
+        return JsonResponse({'status': 0, 'error': 'Invalid request method ({}). Must be GET, POST or PATCH.'.format(request.method)})
 
 
 @csrf_exempt

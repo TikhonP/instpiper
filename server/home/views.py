@@ -88,7 +88,7 @@ def authed(request):
 
         rt = Token.objects.filter(author=request.user, is_valid=True)
         req_tokens_null = False
-        if len(t) == 0:
+        if len(rt) == 0:
            req_tokens_null = True
 
         params = {
@@ -163,6 +163,7 @@ def makerequest(request):
         if request.method == 'POST':
             token = request.POST['token']
             data = request.POST['data']
+            print(token)
             if len(request.FILES)!=0:
                 try:
                     data = request.FILES['fileinput'].read().decode()
@@ -176,7 +177,8 @@ def makerequest(request):
             if answer['status']:
                 return redirect('/')
             else:
-                return HttpResponse(answer)
+                messages.error(request, 'Ошибка создания запроса {}'.format(answer['error']))
+                return redirect('/')
         else:
             return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
 

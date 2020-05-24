@@ -22,7 +22,7 @@
   </div>
   {% endfor %}
 </ul>
-{% endif %} 
+{% endif %}
 <div class="row">
   <div class="col-3">
     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
@@ -66,7 +66,7 @@
         {% for i in req %}
         <div class="shadow accordion" id="accordion{{ i.task }}">
           <div class="card">
-            <div class="card-header">{{ i.date }}</div>
+            <div class="card-header">{{ i.date }}{% if i.is_done is 100 %} - Выполнен{% endif %}</div>
             <div class="card-body">
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">
@@ -90,7 +90,7 @@
             </div>
           </div>
           <div class="card">
-            {% if i.is_done %}
+            {% if i.is_done is not 0 %}
             <div class="card-header" id="heading{{ i.task }}2">
               <h2 class="mb-0">
                 <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse{{ i.task }}2" aria-expanded="false" aria-controls="collapse{{ i.task }}2">
@@ -100,7 +100,7 @@
             </div>
             <div id="collapse{{ i.task }}2" class="collapse" aria-labelledby="heading{{ i.task }}2" data-parent="#accordion{{ i.task }}">
               <div class="card-body">
-                {{ i.data }}
+                {{ i.response }}
               </div>
             </div>
             {% else %}
@@ -109,10 +109,17 @@
             </div>
             {% endif %}
           </div>
+           {% if i.is_done is not 0 and i.is_done is not 100 %}
+            <div class="progress" style="height: 20px;">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ i.is_done }}%" aria-valuenow="{{ i.is_done }}" aria-valuemin="0" aria-valuemax="100">Идет анализ данных выполненно {{ i.is_done }}%</div>
+          </div>
+          {% endif %}
         </div>
+      
         <br>
         {% endfor %}
         {% endif %}
+
       </div>
       <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
        <h1>Профиль</h1>
@@ -146,7 +153,7 @@
   </div>
 </form>
 <p></p>
-<p>Последний раз вы заходили {{ user.last_login }}</p> 
+<p>Последний раз вы заходили {{ user.last_login }}</p>
       </div>
       <div class="tab-pane fade" id="makerequest" role="tabpanel" aria-labelledby="makerequest-tab">
         {% if req_tokens_null %}
@@ -178,7 +185,7 @@
               <label class="custom-file-label" for="inputGroupFile01">Выберите файл</label>
             </div>
           </div>
-          <input class="btn btn-dark btn-md btn-block" name="makerequest" value="Сделать Запрос" type="submit"> 
+          <input class="btn btn-dark btn-md btn-block" name="makerequest" value="Сделать Запрос" type="submit">
         </form>
         {% endif %}
       </div>
