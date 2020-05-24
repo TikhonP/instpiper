@@ -14,7 +14,7 @@ class Token(models.Model):
 class Req(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField(("Date"), default=datetime.date.today)
-    token = models.ForeignKey(Token, on_delete=models.SET("Token Deleted"))
+    token = models.ForeignKey(Token, on_delete=models.SET_NULL, null=True)
     data = models.TextField()
     response = models.TextField(null=True, default=None)
     is_done = models.IntegerField(default=0)

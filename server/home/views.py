@@ -7,10 +7,31 @@ from secrets import token_hex
 import requests
 from django.contrib import messages
 import json
+import re
 
 
 with open('../config.json', 'r') as f:
     domen = json.load(f)['domen']
+
+def pcheck(a: str) -> str:
+    res = [re.search(r"[a-zA-Z]", a), re.search(r"[0-9]", a)]
+    if all(res):
+        if len(a) in range(8, 21):
+            return True
+        else:
+            return "Пароль должен быть от 8 до 20 символов."
+    else:
+        if len(a) in range(8, 21):
+            return ("Слабый пароль. Добавьте "+
+                    "буквы, "*(res[0] is None) +
+                    "цифры, "*(res[1] is None) +
+                     "и попробуйте еще раз.")
+        else:
+            return ("Слабый пароль. Пароль должен быть от 8 до 20 символов. Добавьте "+
+                    "буквы, "*(res[0] is None) +
+                    "цифры, "*(res[1] is None) +
+                     "и попробуйте еще раз.")
+
 
 def main(request):
     if request.user.is_authenticated:
@@ -55,7 +76,11 @@ def registerp(request):
             email = request.POST['email']
             if password1 != password2:
                 messages.error(request, 'Пароли не совпадают! Проверьте правильность ввода паролей или придумайте новые.')
-                return redirect('/login')
+                return redirect('/register')
+            check = pcheck(password1)
+            if type(check)==type(''):
+                messages.error(request, check)
+                return redirect('/register')
             user = authenticate(username=username, password=password1)
             if not user:
                 user = User.objects.create_user(
@@ -133,12 +158,13 @@ def addtoken(request):
     if not request.user.is_authenticated:
         return redirect('/')
     else:
-        if request.method == 'GET':
-            t = Token(author=request.user, token=token_hex(20))
+        if request.method == 'POST':
+            name = request.POST.get('name', '')
+            t = Token(author=request.user, token=token_hex(20), name=name)
             t.save()
             return redirect('/')
         else:
-            return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
+            return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
 
 
 def removetoken(request):
