@@ -7,7 +7,7 @@ class Token(models.Model):
     name = models.CharField(max_length=50, default='No Name')
     date = models.DateTimeField(("Date"), default=datetime.date.today)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    token = models.TextField()
+    token = models.CharField(max_length=40)
     is_valid = models.BooleanField(default=False)
 
 
@@ -18,4 +18,4 @@ class Req(models.Model):
     data = models.TextField()
     response = models.TextField(null=True, default=None)
     is_done = models.IntegerField(default=0)
-    task = models.CharField(max_length=20)
+    task = models.CharField(max_length=40)

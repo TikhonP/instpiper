@@ -1,10 +1,9 @@
-proxies = open('openproxy.txt').read().split('\n')
+#proxies = open('openproxy.txt').read().split('\n')
 ua = open('useragents.txt', 'r').read().split('\n')
 import json
 import random
 from requests import get
 from traceback import print_exc
-from requests.auth import HTTPProxyAuth
 from threading import Thread
 from time import sleep
 import requests
@@ -42,32 +41,27 @@ def extract_values(obj, key):
     return results
 
 
-def extract_information(user_id, is_id):
+def extract_information(user_id, is_id, prxs):
     """Get all the information for the given username"""
     uag = generate_ua()
     headers = {
         'User-Agent': uag,
     }
-    proxy = random.choice(proxies)
+    proxy = random.choice(prxs)
     proxy = proxy.replace('\n', '').replace(" ", "")
+    proxy = proxy.split("@")[1] + "@" + proxy.split("@")[0]
     uproxy = {
         'http': 'http://' + proxy,
         'https': 'http://' + proxy
     }
-    s = requests.Session()
-    s.trust_env = False
-    s.proxies = uproxy
-    s.auth = HTTPProxyAuth(proxy.split('@')[0].split(":")[0], proxy.split('@')[0].split(":")[1])
-    s.headers.update(headers)
-    print('setup proxy')
 
     try:
         if is_id:
-            resp = dict(s.get('https://i.instagram.com/api/v1/users/{}/info/'.format(str(user_id))).json())
+            resp = dict(requests.get('https://i.instagram.com/api/v1/users/{}/info/'.format(str(user_id)), headers=headers,proxies=uproxy).json())
             username = resp["user"]['username']
         else:
             username = user_id
-        profile = dict(s.get('https://www.instagram.com/{}/?__a=1'.format(username), proxies=uproxy).json())['graphql'][
+        profile = dict(get('https://www.instagram.com/{}/?__a=1'.format(username), proxies=uproxy).json())['graphql'][
             'user']
         photos = []
         caption = []

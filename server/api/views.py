@@ -16,12 +16,10 @@ def CreateRecRequest(request):
         if 'token' not in request.GET:
             return JsonResponse({'status': 0, 'error': 'Did not get TOKEN argument, you must add token'})
         token = request.GET.get('token', '')
-        print(token)
         t = Token.objects.filter(token=token, is_valid=True)
         if len(t) == 0:
             return JsonResponse({'status': 0, 'error': 'Invalid token, got {}'.format(token)})
         data = request.body.decode('utf-8')
-
         task = token_hex(20)
         r = Req(author=t[0].author, token=t[0], data=data, task=task)
         r.save()

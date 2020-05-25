@@ -1,3 +1,4 @@
 django
 requests
 markdown
+psycopg2

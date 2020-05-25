@@ -94,7 +94,7 @@ def registerp(request):
                 login(request, user)
             else:
                 messages.error(request, 'Логин уже существует! Придумайте новый, проявите фантазию!')
-                return redirect('/login')
+                return redirect('/register')
             return redirect('/')
         else:
             return HttpResponse('Invalid requsest method ({}) Must be GET or POST'.format(request.method))

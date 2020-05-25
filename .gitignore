@@ -132,4 +132,5 @@ dmypy.json
 *.DS_Store
 *.swp
 
-/server/instpiperenv/
+server/instpiperenv/
+config.json
