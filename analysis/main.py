@@ -13,7 +13,7 @@ with open(os.path.join(dir_path, '../config.json'), 'r') as f:
     domen = config['domen']
 
 params = {'token': tokens[0]}
-url = domen+'/api/private' 
+url = domen+'/api/private'
 
 main_tasks = []
 main_tasks_ids = []
@@ -24,23 +24,26 @@ proxypath = 'openproxy.txt'
 
 process = 20
 
+
 class task:
     def __init__(self, task):
         self.task = task
         self.start_time = time.time()
 
     def begin(self):
-        filedata = os.path.join(dir_path, 'task_files/{}.txt'.format(self.task['task']))
+        filedata = os.path.join(
+            dir_path, 'task_files/{}.txt'.format(self.task['task']))
         with open(filedata, 'w') as f:
             f.write(self.task['data'])
-        self.hc = HitlerClassifier(proxypath, filedata, process, {'is_parsed':False, 'is_id':False, "from_id":0})
+        self.hc = HitlerClassifier(proxypath, filedata, process, {
+                                   'is_parsed': False, 'is_id': False, 'from_id': 0})
         self.hc.start()
 
     def get_complete(self):
         complete = self.hc.how_much_done()
         data = self.hc.get_all_ready_accs()
         return (complete, data)
-    
+
     def __del__(self):
         del self.hc
 
@@ -52,7 +55,8 @@ def get_tasks():
         return None
     if tasks['data'] == 0:
         return None
-    return tasks['data'] 
+    return tasks['data']
+
 
 def patch_task(task):
     """task -> {"task": taskid, "data": data, "is_done": 0-100}"""
@@ -79,7 +83,7 @@ def newtasks():
     for t in tasks:
         if t['task'] in main_tasks_ids:
             continue
-        print("New task! ", t)
+        print('New task! ', t)
         main_tasks.append(task(t))
         main_tasks[len(main_tasks)-1].begin()
         main_tasks_ids.append(t['task'])
@@ -89,16 +93,16 @@ def main():
     newtasks()
     list_to_destroy = []
     for i, t in enumerate(main_tasks):
-        if (time.time()-t.start_time)%get_batch_delay==0:
+        if (time.time()-t.start_time) % get_batch_delay == 0:
             a = t.get_complete()
-            print("Check complete: ", a)
-            if a[0]>0:
-                patch_task({"task": t.task['task'], "data": a[2]})
+            print('Check complete: ', a)
+            if a[0] > 0:
+                patch_task({'task': t.task['task'], 'data': a[2]})
             #   patch_task(tasks)
             # if task is done
             #   del t
             #   list_to_destroy.append(i)
-    if len(list_to_destroy)!=0:
+    if len(list_to_destroy) != 0:
         for i in list_to_destroy:
             main_tasks.pop(i)
             main_tasks_ids.pop(i)
@@ -110,5 +114,5 @@ def mainloop():
         time.sleep(10)
 
 
-if __name__=="__main__":
+if __name__ == '__main__':
     mainloop()

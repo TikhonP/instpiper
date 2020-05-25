@@ -22,8 +22,9 @@ from threading import Thread
 from deepface.extendedmodels import Gender, Race
 from deepface.commons import functions
 
-#def ansambn(*args):
+# def ansambn(*args):
 #    return ["M"]
+
 
 def preprocess_face(face, target_size=(224, 224), gray_scale=False):
     if gray_scale:
@@ -33,6 +34,7 @@ def preprocess_face(face, target_size=(224, 224), gray_scale=False):
     img_pixels = np.expand_dims(img_pixels, axis=0)
     img_pixels /= 255
     return img_pixels
+
 
 def centroid_face(encodings):
     encodings = encodings
@@ -53,22 +55,27 @@ def centroid_face(encodings):
             minnind = ind
     return minnind
 
+
 def get_image(url):
     try:
         response = requests.get(url)
-        return Image.open(BytesIO(response.content)).convert("RGB")
+        return Image.open(BytesIO(response.content)).convert('RGB')
     except:
         pass
 
-transgender = {'F':'Female', 'M':'Male'}
+
+transgender = {'F': 'Female', 'M': 'Male'}
 sharedmemory = {}
 minimgsize = 32 ** 2
 MODEL_MEAN_VALUES = (78.4263377603, 87.7689143744, 114.895847746)
-age_list = ['0-2 years', '4-6 years', '8-12 years', '15-20 years', '25-32 years', '38-43 years', '48-53 years', '60-100 years']
+age_list = ['0-2 years', '4-6 years', '8-12 years', '15-20 years',
+            '25-32 years', '38-43 years', '48-53 years', '60-100 years']
 gender_list = ['Female', 'Male']
-race_labels = ['asian', 'indian', 'black', 'white', 'middle eastern', 'latino hispanic']
+race_labels = ['asian', 'indian', 'black',
+               'white', 'middle eastern', 'latino hispanic']
 threshold = functions.findThreshold('OpenFace', 'cosine')
-outputfile = ""
+outputfile = ''
+
 
 class Consumer(mp.Process):
     def __init__(self, q, out_q):
@@ -83,19 +90,19 @@ class Consumer(mp.Process):
         #print('gender_models done')
         self.OpenFacemodel = None
         #print('OpenFacemodels done')
-        #self.OpenFacemodel._make_predict_function()
-        #self.gender_model._make_predict_function()
-        #self.race_model._make_predict_function()
-        #for typemodel in [self.OpenFacemodel, self.gender_model, self.race_model]:
+        # self.OpenFacemodel._make_predict_function()
+        # self.gender_model._make_predict_function()
+        # self.race_model._make_predict_function()
+        # for typemodel in [self.OpenFacemodel, self.gender_model, self.race_model]:
         #    typemodel._make_predict_function()
 
     def run(self):
-        print("I am here")
+        print('I am here')
         #q = args[0]
         self.race_model = Race.loadModel()
-        print("race_model done")
+        print('race_model done')
         self.detector = dlib.get_frontal_face_detector()
-        print("detector done")
+        print('detector done')
         self.gender_model = Gender.loadModel()
         print('gender_models done')
         self.OpenFacemodel = OpenFace.loadModel()
@@ -120,20 +127,27 @@ class Consumer(mp.Process):
             if faceweight < 3:
                 if namegenderpred[0]:
                     name_gender = transgender[namegenderpred[0]]
-                    print(name_gender, user['username'], time.time() - starttime, 'onlyname')
-                    self.out_q.put([name_gender, user['username'], user["user_id"]])
+                    print(name_gender, user['username'],
+                          time.time() - starttime, 'onlyname')
+                    self.out_q.put(
+                        [name_gender, user['username'], user['user_id']])
                     #self.save_output(name_gender, user['username'], user["user_id"])
                 return
-            namegendvec = np.array([0.6 if namegenderpred[0] and namegenderpred[0].upper() == 'F' else 0.0, 0.6 if namegenderpred[0] and namegenderpred[0].upper() == 'M' else 0.0])
+            namegendvec = np.array([0.6 if namegenderpred[0] and namegenderpred[0].upper(
+            ) == 'F' else 0.0, 0.6 if namegenderpred[0] and namegenderpred[0].upper() == 'M' else 0.0])
             enc, nfaces = self.get_encodings(faces)
             if enc and 'username' in user:
                 center_face = centroid_face(enc)
                 facearr = np.array(nfaces[center_face][0])
-                img_224 = preprocess_face(facearr, target_size=(224, 224), gray_scale=False)
-                gender_prediction = self.get_gender_multiple([img_224], namegendvec)
+                img_224 = preprocess_face(
+                    facearr, target_size=(224, 224), gray_scale=False)
+                gender_prediction = self.get_gender_multiple(
+                    [img_224], namegendvec)
                 race_predictions = self.get_race(img_224)
-                print(user['username'], time.time() - starttime, race_predictions, gender_prediction)
-                self.out_q.put([gender_prediction, user['username'], user["user_id"], race_predictions])
+                print(user['username'], time.time() - starttime,
+                      race_predictions, gender_prediction)
+                self.out_q.put(
+                    [gender_prediction, user['username'], user['user_id'], race_predictions])
                 #self.save_output(gender_prediction, user['username'], user["user_id"], race_predictions)
 
         except Exception:
@@ -184,7 +198,8 @@ class Consumer(mp.Process):
         for face in faces:
             try:
                 if (face[0].size[0] * face[0].size[1]) > minimgsize:
-                    preface = preprocess_face(np.array(face[0]), target_size=input_shape)
+                    preface = preprocess_face(
+                        np.array(face[0]), target_size=input_shape)
                     vec_repres = self.OpenFacemodel.predict(preface)
                     vec_repres = self.OpenFacemodel.predict(preface)[0, :]
                     encodings.append([vec_repres, face[1]])
@@ -203,17 +218,19 @@ class Producer():
         self.thrs = []
 
     def process_userjson(self, userdata):
-        if not userdata: return None
+        if not userdata:
+            return None
         #user = json.loads(userdata)
         user = userdata
         returnuser = userdata
-        returnuser['all_photos'] = [[get_image(user['avatar']), True]] + [[get_image(url), False] for url in user['photo_urls'][:5]]
+        returnuser['all_photos'] = [[get_image(
+            user['avatar']), True]] + [[get_image(url), False] for url in user['photo_urls'][:5]]
         return returnuser
 
     def parse_addtoque(self, userdata, q):
-        thr = Thread(target = self.thr_func, args = (userdata, q, ))
+        thr = Thread(target=self.thr_func, args=(userdata, q, ))
         thr.start()
-        #self.thrs.append(thr)
+        # self.thrs.append(thr)
 
     def thr_func(self, userdata, q):
         if not self.is_parsed:
@@ -228,8 +245,10 @@ class Producer():
                 continue
             if q.qsize() > 100:
                 time.sleep(10)
-            Thread(target=self.parse_addtoque, args=(line.replace('\n', ''), q,)).start()
+            Thread(target=self.parse_addtoque, args=(
+                line.replace('\n', ''), q,)).start()
             time.sleep(1)
+
 
 class HitlerClassifier(mp.Process):
     def __init__(self, proxypath, inputpath, process_count, input_desc):
@@ -239,28 +258,36 @@ class HitlerClassifier(mp.Process):
         self.process_count = process_count
         self.input_desc = input_desc
         self.ready_accounts = mp.Queue()
+
     def run(self):
         q = mp.Queue()
-        prod = Producer(proxypath = self.proxypath, is_parsed=self.input_desc['is_parsed'], contents_path=inputpath, is_id=self.input_desc['is_id'])
-        Consumers = [Consumer(q, self.ready_accounts) for _ in range(self.process_count)]
+        prod = Producer(proxypath=self.proxypath,
+                        is_parsed=self.input_desc['is_parsed'], contents_path=inputpath, is_id=self.input_desc['is_id'])
+        Consumers = [Consumer(q, self.ready_accounts)
+                     for _ in range(self.process_count)]
         print('prod created')
         for cns in Consumers:
             cns.start()
             time.sleep(2)
         print('producer started')
-        prod.start_producing(self.input_desc["from_id"], q)
+        prod.start_producing(self.input_desc['from_id'], q)
         for cns in Consumers:
             cns.join()
+
     def get_all_ready_accs(self):
         item_list = []
         while True:
             try:
                 item_list.append(self.ready_accounts.get(block=True))
             except:
-                if item_list: return item_list
+                if item_list:
+                    return item_list
                 return None
+
     def how_much_done(self):
         return self.ready_accounts.qsize()
+
+
 '''
 inputpath = "parsedexample.txt"
 

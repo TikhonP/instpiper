@@ -7,11 +7,12 @@ pages_data = {
     'docs_api': ['docs_api', 'Api Документация'],
 }
 
+
 def main(request, data):
     if request.method == 'GET':
         page = Page.objects.get(name=data[0])
         if page is None:
-            return HttpResponse("No page {} in database".format(data[0]))
+            return HttpResponse('No page {} in database'.format(data[0]))
         return render(request, 'page.html', {'page': page, 'title': data[1]})
     else:
         return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))

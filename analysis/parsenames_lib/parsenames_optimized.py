@@ -9,6 +9,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 so_file = os.path.join(dir_path, 'parsenames.so')
 names_path = os.path.join(dir_path, 'names/yob2018.txt')
 
+
 class genderName(ctypes.Structure):
     _fields_ = [('name', ctypes.POINTER(ctypes.c_char)),
                 ('gender', ctypes.c_char),
@@ -44,7 +45,7 @@ class closeMatches:
         translit: bool, include or not python translit, default True
         returns tuple gender (char) and score
         """
-        
+
         if translit:
             name = pn.translitt(name)
         score = ctypes.c_double(0.)

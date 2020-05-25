@@ -13,24 +13,25 @@ import re
 with open('../config.json', 'r') as f:
     domen = json.load(f)['domen']
 
+
 def pcheck(a: str) -> str:
-    res = [re.search(r"[a-zA-Z]", a), re.search(r"[0-9]", a)]
+    res = [re.search(r'[a-zA-Z]', a), re.search(r'[0-9]', a)]
     if all(res):
         if len(a) in range(8, 21):
             return True
         else:
-            return "Пароль должен быть от 8 до 20 символов."
+            return 'Пароль должен быть от 8 до 20 символов.'
     else:
         if len(a) in range(8, 21):
-            return ("Слабый пароль. Добавьте "+
-                    "буквы, "*(res[0] is None) +
-                    "цифры, "*(res[1] is None) +
-                     "и попробуйте еще раз.")
+            return ('Слабый пароль. Добавьте ' +
+                    'буквы, '*(res[0] is None) +
+                    'цифры, '*(res[1] is None) +
+                    'и попробуйте еще раз.')
         else:
-            return ("Слабый пароль. Пароль должен быть от 8 до 20 символов. Добавьте "+
-                    "буквы, "*(res[0] is None) +
-                    "цифры, "*(res[1] is None) +
-                     "и попробуйте еще раз.")
+            return ('Слабый пароль. Пароль должен быть от 8 до 20 символов. Добавьте ' +
+                    'буквы, '*(res[0] is None) +
+                    'цифры, '*(res[1] is None) +
+                    'и попробуйте еще раз.')
 
 
 def main(request):
@@ -75,10 +76,11 @@ def registerp(request):
             username = request.POST['login']
             email = request.POST['email']
             if password1 != password2:
-                messages.error(request, 'Пароли не совпадают! Проверьте правильность ввода паролей или придумайте новые.')
+                messages.error(
+                    request, 'Пароли не совпадают! Проверьте правильность ввода паролей или придумайте новые.')
                 return redirect('/register')
             check = pcheck(password1)
-            if type(check)==type(''):
+            if type(check) == type(''):
                 messages.error(request, check)
                 return redirect('/register')
             user = authenticate(username=username, password=password1)
@@ -93,7 +95,8 @@ def registerp(request):
                 user.save()
                 login(request, user)
             else:
-                messages.error(request, 'Логин уже существует! Придумайте новый, проявите фантазию!')
+                messages.error(
+                    request, 'Логин уже существует! Придумайте новый, проявите фантазию!')
                 return redirect('/register')
             return redirect('/')
         else:
@@ -114,7 +117,7 @@ def authed(request):
         rt = Token.objects.filter(author=request.user, is_valid=True)
         req_tokens_null = False
         if len(rt) == 0:
-           req_tokens_null = True
+            req_tokens_null = True
 
         params = {
             'user': request.user,
@@ -190,11 +193,12 @@ def makerequest(request):
             token = request.POST['token']
             data = request.POST['data']
             print(token)
-            if len(request.FILES)!=0:
+            if len(request.FILES) != 0:
                 try:
                     data = request.FILES['fileinput'].read().decode()
                 except UnicodeDecodeError:
-                    messages.error(request, 'Непраильный типа файла, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
+                    messages.error(
+                        request, 'Непраильный типа файла, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
                     return redirect('/')
             url = '{}/api/createrequest'.format(domen)
             params = {'token': token}
@@ -203,9 +207,8 @@ def makerequest(request):
             if answer['status']:
                 return redirect('/')
             else:
-                messages.error(request, 'Ошибка создания запроса {}'.format(answer['error']))
+                messages.error(
+                    request, 'Ошибка создания запроса {}'.format(answer['error']))
                 return redirect('/')
         else:
             return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
-
-

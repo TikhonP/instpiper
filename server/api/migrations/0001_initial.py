@@ -18,25 +18,32 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Token',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(default='No Name', max_length=50)),
-                ('date', models.DateTimeField(default=datetime.date.today, verbose_name='Date')),
+                ('date', models.DateTimeField(
+                    default=datetime.date.today, verbose_name='Date')),
                 ('token', models.TextField()),
                 ('is_valid', models.BooleanField(default=False)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('author', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
             name='Req',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateTimeField(default=datetime.date.today, verbose_name='Date')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
+                ('date', models.DateTimeField(
+                    default=datetime.date.today, verbose_name='Date')),
                 ('data', models.TextField()),
                 ('response', models.TextField(default=None, null=True)),
                 ('is_done', models.IntegerField(default=0)),
                 ('task', models.CharField(max_length=20)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('token', models.ForeignKey(on_delete=models.SET('Token Deleted'), to='api.Token')),
+                ('author', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('token', models.ForeignKey(on_delete=models.SET(
+                    'Token Deleted'), to='api.Token')),
             ],
         ),
     ]
