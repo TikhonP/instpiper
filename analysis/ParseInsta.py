@@ -1,5 +1,5 @@
 #proxies = open('openproxy.txt').read().split('\n')
-ua = open('useragents.txt', 'r').read().split('\n')
+ua = open('source_data/useragents.txt', 'r').read().split('\n')
 import json
 import random
 from requests import get

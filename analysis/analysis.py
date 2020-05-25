@@ -5,7 +5,7 @@ from io import BytesIO
 from keras.preprocessing import image
 from deepface.commons import distance as dst
 import numpy as np
-from testnamescpp import names as ansambn
+from parsenames_lib.namesc import names as ansambn
 from ParseInsta import extract_information
 from PIL import Image
 import dlib
@@ -261,7 +261,7 @@ class HitlerClassifier(mp.Process):
                 return None
     def how_much_done(self):
         return self.ready_accounts.qsize()
-
+'''
 inputpath = "parsedexample.txt"
 
 HC = HitlerClassifier("openproxy.txt", "parsedexample.txt", 1, {'is_parsed':False, 'is_id':False, "from_id":0})
@@ -269,3 +269,4 @@ HC.start()
 
 while True:
     print(HC.how_much_done())
+'''

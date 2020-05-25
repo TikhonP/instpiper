@@ -16,10 +16,11 @@ params = {'token': tokens[0]}
 url = domen+'/api/private' 
 
 main_tasks = []
+main_tasks_ids = []
 
 get_batch_delay = 60
 
-proxypath = ''
+proxypath = 'openproxy.txt'
 
 process = 20
 
@@ -30,7 +31,7 @@ class task:
 
     def begin(self):
         filedata = os.path.join(dir_path, 'task_files/{}.txt'.format(self.task['task']))
-        with open(filedata, 'a') as f:
+        with open(filedata, 'w') as f:
             f.write(self.task['data'])
         self.hc = HitlerClassifier(proxypath, filedata, process, {'is_parsed':False, 'is_id':False, "from_id":0})
         self.hc.start()
@@ -76,8 +77,12 @@ def newtasks():
     if tasks is None:
         return None
     for t in tasks:
+        if t['task'] in main_tasks_ids:
+            continue
+        print("New task! ", t)
         main_tasks.append(task(t))
         main_tasks[len(main_tasks)-1].begin()
+        main_tasks_ids.append(t['task'])
 
 
 def main():
@@ -86,14 +91,17 @@ def main():
     for i, t in enumerate(main_tasks):
         if (time.time()-t.start_time)%get_batch_delay==0:
             a = t.get_complete()
-            # if there is new completed tasks
+            print("Check complete: ", a)
+            if a[0]>0:
+                patch_task({"task": t.task['task'], "data": a[2]})
             #   patch_task(tasks)
             # if task is done
             #   del t
             #   list_to_destroy.append(i)
     if len(list_to_destroy)!=0:
         for i in list_to_destroy:
-            main_tasks.remove(main_tasks[i])
+            main_tasks.pop(i)
+            main_tasks_ids.pop(i)
 
 
 def mainloop():
@@ -103,4 +111,4 @@ def mainloop():
 
 
 if __name__=="__main__":
-    mainLoop()
+    mainloop()
