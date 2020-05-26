@@ -3,6 +3,7 @@ import json
 import os
 import requests
 import time
+import sys
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -67,6 +68,7 @@ def get_tasks():
 def put_task(task):
     """task -> {"task": taskid, "data": data, "is_done": 0-100}"""
     data=json.dumps(task)
+    print(data)
     tasks = requests.put(url, params=params, data=data)
     tasks = tasks.json() 
     if not tasks['status']:
@@ -87,6 +89,7 @@ def post_task(task):
 def newtasks():
     tasks = get_tasks()
     if tasks is None:
+
         return None
     for t in tasks:
         if t['task'] in main_tasks_ids:
@@ -104,10 +107,14 @@ def main():
             t.start_time = time.time()
             a = t.get_complete()
             print('Check complete task {}: {}'.format(t.task['task'], a))
-            if a is None:
+            if a[1] is None:
+                if a[0]==100:
+                    put_task({"task": t.task['task'], "data": "[]", "is_done": a[0]})
+                    del main_tasks[i]
+                    del t
                 continue
-            if a[0] > 0:
-                put_task({"task": t.task['task'], "data": str(a[1]).replace("'", "\""), "is_done": a[0]})
+            elif a[0] > 0:
+                put_task({"task": t.task['task'], "data": str(a[1]).replace("'", '"'), "is_done": a[0]})
                 if a[0] == 100:
                     del main_tasks[i]
                     del t
