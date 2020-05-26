@@ -262,7 +262,7 @@ class HitlerClassifier(mp.Process):
     def run(self):
         q = mp.Queue()
         prod = Producer(proxypath=self.proxypath,
-                        is_parsed=self.input_desc['is_parsed'], contents_path=inputpath, is_id=self.input_desc['is_id'])
+                        is_parsed=self.input_desc['is_parsed'], contents_path=self.inputpath, is_id=self.input_desc['is_id'])
         Consumers = [Consumer(q, self.ready_accounts)
                      for _ in range(self.process_count)]
         print('prod created')
