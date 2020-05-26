@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 with open('../config.json', 'r') as f:
     validtokens = json.load(f)['private_tokens']
 
+columns = ["gender", "username", "id_some_num", "race"]
 
 @csrf_exempt
 def CreateRecRequest(request):
@@ -56,7 +57,7 @@ def privateapi(request):
         r.is_done = 100
         r.save()
         return JsonResponse({'status': 1})
-    elif request.method == 'PATCH':
+    elif request.method == 'PUT':
         data = json.loads(request.body)
 
         r = Req.objects.get(task=data['task'])
@@ -65,14 +66,23 @@ def privateapi(request):
         elif data['is_done'] not in range(1, 101):
             return JsonResponse({'status': 0, 'error': 'IS_DONE is out of range. Must be from 1 to 100, but got {}'.format(data['is_done'])})
         r.is_done = int(data['is_done'])
+        out = ""
+        for i in json.loads(data['data']):
+            for j in i:
+                out += j+","
+            out = out[:-1]+"\n"
         if r.response is None:
-            r.response = str(data['data'])
+            oout = ""
+            for i in columns:
+                oout += i+","
+            out = oout[:-1]+"\n"+out
+            r.response = out
         else:
-            r.response += str(data['data'])
+            r.response += out
         r.save()
         return JsonResponse({'status': 1})
     else:
-        return JsonResponse({'status': 0, 'error': 'Invalid request method ({}). Must be GET, POST or PATCH.'.format(request.method)})
+        return JsonResponse({'status': 0, 'error': 'Invalid request method ({}). Must be GET, POST or PUT.'.format(request.method)})
 
 
 @csrf_exempt

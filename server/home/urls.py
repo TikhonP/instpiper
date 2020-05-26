@@ -10,4 +10,5 @@ urlpatterns = [
     path('addtoken/', views.addtoken, name='addtoken'),
     path('removetoken/', views.removetoken, name='removetoken'),
     path('makerequest/', views.makerequest, name='makerequest'),
+    path('removereq/', views.removerequest, name='removerequest'),
 ]

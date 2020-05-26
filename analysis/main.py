@@ -43,15 +43,15 @@ class task:
     def get_complete(self):
         complete = self.hc.how_much_done()
         data = self.hc.get_all_ready_accs()
-        complete = (complete/self.task_len)*100
+        complete = int((complete/self.task_len)*100)
         if self.hc.done:
             complete = 100
-        return (int(complete), data)
+        return (complete, data)
 
     def __del__(self):
         os.remove(self.filedata)
         del self.hc
-        print("Okay removed")
+        print("Okay task {} removed".format(self.task['task']))
 
 
 def get_tasks():
@@ -64,13 +64,10 @@ def get_tasks():
     return tasks['data']
 
 
-def patch_task(task):
+def put_task(task):
     """task -> {"task": taskid, "data": data, "is_done": 0-100}"""
-    print(type(task))
-    print(task)
     data=json.dumps(task)
-    tasks = requests.patch(url, params=params, data=data)
-    print(tasks.text)
+    tasks = requests.put(url, params=params, data=data)
     tasks = tasks.json() 
     if not tasks['status']:
         print('ERROR with request {}'.format(tasks['error']))
@@ -106,19 +103,15 @@ def main():
         if (int(time.time()-t.start_time))>= get_batch_delay:
             t.start_time = time.time()
             a = t.get_complete()
-            print('Check complete: ', a)
-            if a[0] == 100:
-                patch_task({"task": t.task['task'], "data": str(a[1]), "is_done": a[0]})
-                del main_tasks[i]
-                del t
-            elif a[0] > 0:
-                patch_task({"task": t.task['task'], "data": str(a[1]), "is_done": a[0]})
-    '''
-    if len(list_to_destroy) != 0:
-        for i in list_to_destroy:
-            main_tasks.pop(i)
-            main_tasks_ids.pop(i)
-'''
+            print('Check complete task {}: {}'.format(t.task['task'], a))
+            if a is None:
+                continue
+            if a[0] > 0:
+                put_task({"task": t.task['task'], "data": str(a[1]).replace("'", "\""), "is_done": a[0]})
+                if a[0] == 100:
+                    del main_tasks[i]
+                    del t
+
 
 def mainloop():
     while True:
@@ -127,4 +120,8 @@ def mainloop():
 
 
 if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        print("Usage : python3 main.py <threads count>")
+        sys.exit()
+    process = int(sys.argv[1])
     mainloop()

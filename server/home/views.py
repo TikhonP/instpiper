@@ -109,7 +109,7 @@ def authed(request):
         tokens_null = False
         if len(t) == 0:
             tokens_null = True
-        r = Req.objects.filter(author=request.user)
+        r = Req.objects.filter(author=request.user).order_by('-date')
         requests_null = False
         if len(r) == 0:
             requests_null = True
@@ -180,6 +180,21 @@ def removetoken(request):
             if t is None:
                 return HttpResponse('Invalid request token with user not found')
             t.delete()
+            return redirect('/')
+        else:
+            return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
+
+
+def removerequest(request):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    else:
+        if request.method == 'GET':
+            req = request.GET.get('req', '')
+            r = Req.objects.get(author=request.user, task=req)
+            if r is None:
+                return HttpResponse('Invalid request token with user not found')
+            r.delete()
             return redirect('/')
         else:
             return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))

@@ -26,15 +26,15 @@
 <div class="row">
   <div class="col-3">
     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-      <a class="nav-link active" id="tokens-tab" data-toggle="pill" href="#tokens" role="tab" aria-controls="tokens" aria-selected="true">Токены</a>
-      <a class="nav-link" id="requests-tab" data-toggle="pill" href="#requests" role="tab" aria-controls="requests" aria-selected="false">Запросы</a>
+      <a class="nav-link" id="tokens-tab" data-toggle="pill" href="#tokens" role="tab" aria-controls="tokens" aria-selected="false">Токены</a>
+      <a class="nav-link active" id="requests-tab" data-toggle="pill" href="#requests" role="tab" aria-controls="requests" aria-selected="true">Запросы</a>
       <a class="nav-link" id="settins-tab" data-toggle="pill" href="#settings" role="tab" aria-controls="settings" aria-selected="false">Настройки</a>
       <a class="nav-link" id="makerequest-tab" data-toggle="pill" href="#makerequest" role="tab" aria-controls="makerequest" aria-selected="false">Сделать Запрос</a>
     </div>
   </div>
   <div class="col-9">
     <div class="tab-content" id="v-pills-tabContent">
-      <div class="tab-pane fade show active" id="tokens" role="tabpanel" aria-labelledby="tokens-tab">
+      <div class="tab-pane fade" id="tokens" role="tabpanel" aria-labelledby="tokens-tab">
         <button type="button" class="btn btn-secondary btn-md btn-block" data-toggle="modal" data-target="#addtokenform">Добавить Токен</button>
 
         <div class="modal fade" id="addtokenform" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -87,14 +87,14 @@
         {% endfor %}
         {% endif %}
       </div>
-      <div class="tab-pane fade" id="requests" role="tabpanel" aria-labelledby="requests-tab">
+      <div class="tab-pane fade show active" id="requests" role="tabpanel" aria-labelledby="requests-tab">
         {% if requests_null %}
         <h3>Вы не сделали еще ни одного запроса. <a href="#makerequest"  data-toggle="pill" role="tab" aria-controls="makerequest">Попробуйте!</a></h3>
         {% else %}
         {% for i in req %}
         <div class="shadow accordion" id="accordion{{ i.task }}">
           <div class="card">
-            <div class="card-header">{{ i.date }}{% if i.is_done is 100 %} - Выполнен{% endif %}</div>
+            <div class="card-header">{{ i.date }}{% if i.is_done is 100 %} - Выполнен{% endif %} <a href="/removereq?req={{ i.task }}">Удалить</a></div>
             <div class="card-body">
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">
@@ -113,7 +113,7 @@
             </div>
             <div id="collapse{{ i.task }}" class="collapse" aria-labelledby="heading{{ i.task }}" data-parent="#accordion{{ i.task }}">
               <div class="card-body">
-                {{ i.data }}
+                <pre>{{ i.data|safe }}</pre>
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@
             </div>
             <div id="collapse{{ i.task }}2" class="collapse" aria-labelledby="heading{{ i.task }}2" data-parent="#accordion{{ i.task }}">
               <div class="card-body">
-                {{ i.response }}
+                <pre>{{ i.response|safe }}</pre>
               </div>
             </div>
             {% else %}
