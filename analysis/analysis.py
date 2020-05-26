@@ -130,7 +130,10 @@ class Consumer(mp.Process):
                     print(name_gender, user['username'],
                           time.time() - starttime, 'onlyname')
                     self.out_q.put(
-                        [name_gender, user['username'], user['user_id']])
+                        [name_gender, user['username'], user['user_id'], "just_name"])
+                else:
+                    self.out_q.put(
+                        [user['username'], user['user_id'], "unknown acc"])
                     #self.save_output(name_gender, user['username'], user["user_id"])
                 return
             namegendvec = np.array([0.6 if namegenderpred[0] and namegenderpred[0].upper(
@@ -255,9 +258,11 @@ class HitlerClassifier(mp.Process):
         super(HitlerClassifier, self).__init__()
         self.proxypath = proxypath
         self.inputpath = inputpath
+        self.howmuch = 0
         self.process_count = process_count
         self.input_desc = input_desc
         self.ready_accounts = mp.Queue()
+        self.done = False
 
     def run(self):
         q = mp.Queue()
@@ -273,6 +278,7 @@ class HitlerClassifier(mp.Process):
         prod.start_producing(self.input_desc['from_id'], q)
         for cns in Consumers:
             cns.join()
+        self.done = True
 
     def get_all_ready_accs(self):
         item_list = []
@@ -281,11 +287,12 @@ class HitlerClassifier(mp.Process):
                 item_list.append(self.ready_accounts.get(block=True))
             except:
                 if item_list:
+                    self.howmuch += len(item_list)
                     return item_list
                 return None
 
     def how_much_done(self):
-        return self.ready_accounts.qsize()
+        return self.ready_accounts.qsize() + self.howmuch
 
 
 '''
