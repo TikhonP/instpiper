@@ -285,7 +285,7 @@ class HitlerClassifier(mp.Process):
         while True:
             try:
                 item_list.append(self.ready_accounts.get(block=True, timeout=3))
-            except queue.Empty:
+            except:
                 if item_list:
                     self.howmuch += len(item_list)
                     return item_list
