@@ -65,11 +65,10 @@ def privateapi(request):
         elif data['is_done'] not in range(1, 101):
             return JsonResponse({'status': 0, 'error': 'IS_DONE is out of range. Must be from 1 to 100, but got {}'.format(data['is_done'])})
         r.is_done = int(data['is_done'])
-        print(data['data'], type(data['data']))
         if r.response is None:
-            r.response = data['data']
+            r.response = str(data['data'])
         else:
-            r.response += data['data']
+            r.response += str(data['data'])
         r.save()
         return JsonResponse({'status': 1})
     else:

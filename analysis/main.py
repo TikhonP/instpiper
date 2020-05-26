@@ -18,7 +18,7 @@ url = domen+'/api/private'
 main_tasks = []
 main_tasks_ids = []
 
-get_batch_delay = 30
+get_batch_delay = 5
 
 proxypath = 'openproxy.txt'
 
@@ -31,6 +31,7 @@ class task:
         self.start_time = time.time()
 
     def begin(self):
+        self.task_len = len(self.task['data'].split('\n'))
         self.filedata = os.path.join(
             dir_path, 'task_files/{}.txt'.format(self.task['task']))
         with open(self.filedata, 'w') as f:
@@ -40,18 +41,17 @@ class task:
         self.hc.start()
 
     def get_complete(self):
-        print('checking complete in class')
         complete = self.hc.how_much_done()
-        print('is done - ', complete)
         data = self.hc.get_all_ready_accs()
-        print('data - ', data)
-        if self.hc.is_done():
+        complete = (complete/self.task_len)*100
+        if self.hc.done:
             complete = 100
-        return (complete, data)
+        return (int(complete), data)
 
     def __del__(self):
         os.remove(self.filedata)
         del self.hc
+        print("Okay removed")
 
 
 def get_tasks():
@@ -66,7 +66,12 @@ def get_tasks():
 
 def patch_task(task):
     """task -> {"task": taskid, "data": data, "is_done": 0-100}"""
-    tasks = requests.patch(url, params=params, data=task).json()
+    print(type(task))
+    print(task)
+    data=json.dumps(task)
+    tasks = requests.patch(url, params=params, data=data)
+    print(tasks.text)
+    tasks = tasks.json() 
     if not tasks['status']:
         print('ERROR with request {}'.format(tasks['error']))
         return 1
@@ -98,17 +103,16 @@ def newtasks():
 def main():
     newtasks()
     for i, t in enumerate(main_tasks):
-        print(time.time()-t.start_time, get_batch_delay)
         if (int(time.time()-t.start_time))>= get_batch_delay:
-            print('Checking complete...')
             t.start_time = time.time()
             a = t.get_complete()
             print('Check complete: ', a)
             if a[0] == 100:
-                patch_task({'task': t.task['task'], 'data': a[1], 'is_done': a[0]})
+                patch_task({"task": t.task['task'], "data": str(a[1]), "is_done": a[0]})
                 del main_tasks[i]
-            if a[0] > 0:
-                patch_task({'task': t.task['task'], 'data': a[1], 'is_done': a[0]})
+                del t
+            elif a[0] > 0:
+                patch_task({"task": t.task['task'], "data": str(a[1]), "is_done": a[0]})
     '''
     if len(list_to_destroy) != 0:
         for i in list_to_destroy:

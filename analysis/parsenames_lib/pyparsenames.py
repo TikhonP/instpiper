@@ -65,7 +65,8 @@ def scores(matshes):
         elif i[0] == 'F':
             scores[1][1] += i[2]
     scores = sorted(scores, key=lambda l: l[1], reverse=True)
-    return scores[0][0]
+    return (scores[0][0], scores[0][1])
+
 
 
 def closeMatches(name):
@@ -85,7 +86,7 @@ def closeMatches(name):
     if matshes == []:
         return None
     else:
-        return (true_gender, matshes)
+        return true_gender
 
 
 if __name__ == '__main__':
