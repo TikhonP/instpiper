@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from .models import Token, Req
+from .models import Token, Req, Proxy
 from secrets import token_hex
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -21,8 +21,21 @@ def CreateRecRequest(request):
         if len(t) == 0:
             return JsonResponse({'status': 0, 'error': 'Invalid token, got {}'.format(token)})
         data = request.body.decode('utf-8')
+        try:
+            data = json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 0, 'error': 'Invalid JSON'})
         task = token_hex(20)
-        r = Req(author=t[0].author, token=t[0], data=data, task=task)
+        try:
+            proxy = Proxy.objects.filter(author=t[0].author, proxy=data['proxy'])
+            if len(proxy)==0:
+                proxy = Proxy(author=t[0].author, proxy=data['proxy'])
+                proxy.save()
+            else:
+                proxy = proxy[0]
+            r = Req(author=t[0].author, token=t[0], data=data['data'], proxy=proxy, is_id=data['is_id'], task=task)
+        except KeyError as e:
+            return JsonResponse({'status': 0, 'error': 'Invalid data, there is not key {}'.format(e)})
         r.save()
 
         return JsonResponse({'status': 1, 'task': task})
@@ -46,7 +59,7 @@ def privateapi(request):
 
         response = []
         for i in r:
-            response.append({'task': i.task, 'data': i.data})
+            response.append({'task': i.task, 'data': i.data, 'proxy': i.proxy.proxy, 'is_id': i.is_id})
 
         return JsonResponse({'status': 1, 'data': response})
     elif request.method == 'POST':

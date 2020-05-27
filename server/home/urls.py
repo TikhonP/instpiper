@@ -11,4 +11,7 @@ urlpatterns = [
     path('removetoken/', views.removetoken, name='removetoken'),
     path('makerequest/', views.makerequest, name='makerequest'),
     path('removereq/', views.removerequest, name='removerequest'),
+    path('removeproxy/', views.removeproxy, name='removeproxy'),
+    path('renameproxy/', views.renameproxy, name='renameproxy'),
+    path('addproxy/', views.addproxy, name='addproxy'),
 ]

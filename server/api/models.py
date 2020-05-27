@@ -10,6 +10,19 @@ class Token(models.Model):
     token = models.CharField(max_length=40)
     is_valid = models.BooleanField(default=False)
 
+    def __str__(self):
+        return '{} | {} | {}'.format(self.author, self.name, self.token)
+
+
+class Proxy(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateTimeField(('Date'), default=timezone.now)
+    proxy = models.TextField()
+    name = models.CharField(max_length=50, default='No Name')
+
+    def __str__(self):
+        return '{} | {} | {}...'.format(self.author, self.name, self.proxy[:50])
+
 
 class Req(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -20,11 +33,8 @@ class Req(models.Model):
     is_done = models.IntegerField(default=0)
     task = models.CharField(max_length=40)
     is_id = models.BooleanField(default=False)
+    proxy = models.ForeignKey(Proxy, on_delete=models.SET_NULL, null=True)
 
-
-class Proxy(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateTimeField(('Date'), default=timezone.now)
-    proxy = models.TextField()
-    name = models.CharField(max_length=50, default='No Name')
+    def __str__(self):
+        return '{} | {} | {}'.format(self.author, self.task, self.date)
 

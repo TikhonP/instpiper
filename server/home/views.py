@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from api.models import Token, Req
+from api.models import Token, Req, Proxy
 from secrets import token_hex
 import requests
 from django.contrib import messages
@@ -119,6 +119,11 @@ def authed(request):
         if len(rt) == 0:
             req_tokens_null = True
 
+        p = Proxy.objects.filter(author=request.user)
+        proxy_null = False
+        if len(p) == 0:
+            proxy_null =True
+
         params = {
             'user': request.user,
             'tokens': t,
@@ -127,6 +132,8 @@ def authed(request):
             'requests_null': requests_null,
             'req_tokens': rt,
             'req_tokens_null': req_tokens_null,
+            'proxy': p,
+            'proxy_null': proxy_null,
         }
         return render(request, 'authed.html', params)
     elif request.method == 'POST':
@@ -200,6 +207,64 @@ def removerequest(request):
             return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
 
 
+def removeproxy(request):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    else:
+        if request.method == 'GET':
+            id = request.GET.get('id', '')
+            p = Proxy.objects.get(author=request.user, id=id)
+            if p is None:
+                return HttpResponse('Invalid request token with user not found')
+            p.delete()
+            return redirect('/')
+        else:
+            return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
+
+
+def renameproxy(request):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    else:
+        if request.method == 'POST':
+            id = request.POST.get('id', '')
+            name = request.POST.get('name', '')
+            p = Proxy.objects.get(id=id)
+            if p.author!=request.user:
+                return HttpResponse('Invalid request token with user not found')
+            p.name = name
+            p.save()
+            return redirect('/')
+        else:
+            return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
+
+
+def addproxy(request):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    else:
+        if request.method == 'POST':
+            name = request.POST.get('name', '')
+            proxy = request.POST.get('proxy', '')
+            print(request.FILES)
+            if len(request.FILES) != 0:
+                try:
+                    proxy = request.FILES['proxyfileinput'].read().decode()
+                except UnicodeDecodeError:
+                    messages.error(
+                        request, 'Неправильный тип файла с прокси, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
+                    return redirect('/')
+            if proxy == '':
+                messages.error(
+                    request, 'Пустое прокси, добавьте данные и попробуйте еще раз.')
+                return redirect('/')
+            p = Proxy(author=request.user, proxy=proxy, name=name)
+            p.save()
+            return redirect('/')
+        else:
+            return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
+
+
 def makerequest(request):
     if not request.user.is_authenticated:
         return redirect('/')
@@ -207,17 +272,43 @@ def makerequest(request):
         if request.method == 'POST':
             token = request.POST['token']
             data = request.POST['data']
-            print(token)
+            datatype = request.POST.get('datatype', '')
+            proxy = request.POST['proxy']
+            proxysaved = request.POST['proxysaved']
             if len(request.FILES) != 0:
-                try:
-                    data = request.FILES['fileinput'].read().decode()
-                except UnicodeDecodeError:
-                    messages.error(
-                        request, 'Непраильный типа файла, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
-                    return redirect('/')
+                if 'proxyfileinput' in request.FILES:
+                    try:
+                        proxy = request.FILES['proxyfileinput'].read().decode()
+                    except UnicodeDecodeError:
+                        messages.error(
+                            request, 'Неправильный тип файла с прокси, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
+                        return redirect('/')
+                if 'datafileinput' in request.FILES:
+                    try:
+                        data = request.FILES['datafileinput'].read().decode()
+                    except UnicodeDecodeError:
+                        messages.error(
+                            request, 'Неправильный тип файла с входными данными, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
+                        return redirect('/')
+            if proxysaved!='none':
+                proxy = Proxy.objects.get(id=proxysaved).proxy
+            if datatype == 'usernames':
+                is_id = False
+            elif datatype == 'ids':
+                is_id = True
+            else:
+                messages.error(
+                        request, 'Вы не выбрали тип входных данных, выберите юзернеймы или id.')
+                return redirect('/')
+
             url = '{}/api/createrequest'.format(domen)
             params = {'token': token}
-            answer = requests.post(url, params=params, data=data.encode())
+            req = {
+                "data": data,
+                "is_id": is_id,
+                "proxy": proxy,
+            }
+            answer = requests.post(url, params=params, data=json.dumps(req))
             answer = answer.json()
             if answer['status']:
                 return redirect('/')

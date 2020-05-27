@@ -1,3 +1,12 @@
+## 0.5.0a Full integration
+
+- Optimized integration
+- Changed PATCH to PUT
+- Added proxy choice
+- Added username or ids choice
+- Added proxy menegement
+
+
 ## 0.4.0a Added basic nn analyser algorithm
 
 - Add prototype of nn algorithm 

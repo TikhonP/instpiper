@@ -30,6 +30,7 @@
       <a class="nav-link active" id="requests-tab" data-toggle="pill" href="#requests" role="tab" aria-controls="requests" aria-selected="true">Запросы</a>
       <a class="nav-link" id="settins-tab" data-toggle="pill" href="#settings" role="tab" aria-controls="settings" aria-selected="false">Настройки</a>
       <a class="nav-link" id="makerequest-tab" data-toggle="pill" href="#makerequest" role="tab" aria-controls="makerequest" aria-selected="false">Сделать Запрос</a>
+      <a class="nav-link" id="proxy-tab" data-toggle="pill" href="#proxy" role="tab" aria-controls="proxy" aria-selected="false">Прокси</a>
     </div>
   </div>
   <div class="col-9">
@@ -94,13 +95,14 @@
         {% for i in req %}
         <div class="shadow accordion" id="accordion{{ i.task }}">
           <div class="card">
-            <div class="card-header">{{ i.date }}{% if i.is_done is 100 %} - Выполнен{% endif %} <a href="/removereq?req={{ i.task }}">Удалить</a></div>
+            <div class="card-header">{{ i.date }}{% if i.is_done is 100 %} - Выполнен{% endif %} <a class="btn btn-outline-danger" href="/removereq?req={{ i.task }}">Удалить</a></div>
             <div class="card-body">
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                   TASK ID - <code>{{ i.task }}</code>
+                  <br>
+                  В запросе {% if i.is_id %}айдишники{% else %}юзернеймы{% endif %}
               </ul>
-
             </div>
           </div>
           <div class="card">
@@ -187,6 +189,8 @@
         {% if req_tokens_null %}
         <h3>У вас нет активных токенов. <a href="#tokens">Добавьте токен</a> и пройдите валидацию.</h3>
         {% else %}
+        <h1>Новый запрос.</h1>
+        <br>
         <form method="post" name="makerequest" enctype="multipart/form-data">
           {% csrf_token %}
           <div class="input-group mb-3">
@@ -206,15 +210,158 @@
           </div>
           <div class="input-group mb-3">
             <div class="input-group-prepend">
-              <span class="input-group-text" id="inputGroupFileAddon01">Загрузка файла</span>
+              <span class="input-group-text" id="inputGroupFileAddon01">Загрузка файла с данными для распознавания</span>
             </div>
             <div class="custom-file">
-              <input name="fileinput" type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+              <input name="datafileinput" type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
               <label class="custom-file-label" for="inputGroupFile01">Выберите файл</label>
             </div>
           </div>
+          <fieldset class="form-group">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="datatype" id="inlineRadio1" value="usernames">
+              <label class="form-check-label" for="inlineRadio1">Это юзернеймы</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="datatype" id="inlineRadio2" value="ids">
+              <label class="form-check-label" for="inlineRadio2">Это айдишники</label>
+            </div>
+          </fieldset>
+          {% if not proxy_null %}
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <label class="input-group-text" for="inputGroupSelect01">Выберите прокси из сохраненных или введите ниже</label>
+            </div>
+            <select name="proxysaved" class="custom-select" id="inputGroupSelect01">
+              <option value="none" selected>Введу ниже</option>
+              {% for i in proxy %}
+              <option value="{{ i.id }}">{{ i.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endif %}
+          <div class="form-group">
+            <label for="exampleFormControlTextarea1">Введите прокси или оставьте пустым про вводе из файла или выборе из сохраненных</label>
+            <textarea class="form-control" id="exampleFormControlTextarea1" name="proxy"></textarea>
+          </div>
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroupFileAddon01">Загрузка файла с прокси</span>
+            </div>
+            <div class="custom-file">
+              <input name="proxyfileinput" type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+              <label class="custom-file-label" for="inputGroupFile01">Выберите файл</label>
+            </div>
+          </div>
+
           <input class="btn btn-dark btn-md btn-block" name="makerequest" value="Сделать Запрос" type="submit">
         </form>
+        {% endif %}
+      </div>
+      <div class="tab-pane fade" id="proxy" role="tabpanel" aria-labelledby="proxy-tab">
+        <button type="button" class="btn btn-secondary btn-md btn-block" data-toggle="modal" data-target="#addproxy">Добавить Прокси</button>
+
+        <div class="modal fade" id="addproxy" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Добавить прокси</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="post" action="/addproxy/" enctype="multipart/form-data">
+        {% csrf_token %}
+      <div class="modal-body">
+         <div class="form-group">
+    <label for="tokenname">Имя прокси</label>
+    <input type="text" name="name" class="form-control" id="tokentext" aria-describedby="tokentextd">
+    <small id="tokentextd" class="form-text text-muted">Используйте это поле, чтобы вести учет ваших прокси</small>
+  </div>
+<div class="form-group">
+            <label for="exampleFormControlTextarea1">Введите прокси или оставьте пустым про вводе из файла</label>
+            <textarea class="form-control" id="exampleFormControlTextarea1" name="proxy"></textarea>
+          </div>
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroupFileAddon01">Загрузка файла с прокси</span>
+            </div>
+            <div class="custom-file">
+              <input name="proxyfileinput" type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+              <label class="custom-file-label" for="inputGroupFile01">Выберите файл</label>
+            </div>
+          </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+        <button type="submit" class="btn btn-primary">Добавить</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+<br>
+
+        {% if proxy_null %}
+        <h1>У вас нет прокси</h1>
+        {% else %}
+        {% for i in proxy %}
+        <div class="shadow accordion" id="accordion{{ i.id }}">
+          <div class="card">
+            <div class="card-header">
+              <b>{{ i.name }}</b> {{ i.date }} 
+              <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#renameproxy{{ i.id }}">
+                Переименовать
+              </button>
+              <div class="modal fade" id="renameproxy{{ i.id }}" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Переименовать прокси "{{ i.name }}"</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <form method="post" action="/renameproxy/">
+                    {% csrf_token %}
+                  <div class="modal-body">
+                     <div class="form-group">
+                      <label for="tokenname">Имя прокси</label>
+                      <input type="text" name="name" class="form-control" id="tokentext" aria-describedby="tokentextd">
+                      <small id="tokentextd" class="form-text text-muted">Используйте это поле, чтобы вести учет ваших прокси</small>
+                    </div>
+                    <input type="hidden" name="id" value="{{ i.id }}"/>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Переименовать</button>
+                  </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+              <a class="btn btn-outline-danger" href="/removeproxy?id={{ i.id }}">Удалить</a> 
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="heading{{ i.id }}">
+              <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse{{ i.id }}" aria-expanded="false" aria-controls="collapse{{ i.id }}">
+                  Показать содержимое
+                </button>
+              </h2>
+            </div>
+            <div id="collapse{{ i.id }}" class="collapse" aria-labelledby="heading{{ i.id }}" data-parent="#accordion{{ i.id }}">
+              <div class="card-body">
+                <pre>{{ i.proxy|safe }}</pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <br>
+        {% endfor %}
         {% endif %}
       </div>
     </div>

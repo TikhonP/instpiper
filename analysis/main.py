@@ -35,10 +35,14 @@ class task:
         self.task_len = len(self.task['data'].split('\n'))
         self.filedata = os.path.join(
             dir_path, 'task_files/{}.txt'.format(self.task['task']))
+        self.fileproxy = os.path.join(
+            dir_path, 'task_files/{}_proxy.txt'.format(self.task['task']))
         with open(self.filedata, 'w') as f:
             f.write(self.task['data'])
-        self.hc = HitlerClassifier(proxypath, self.filedata, process, {
-                                   'is_parsed': False, 'is_id': False, 'from_id': 0})
+        with open(self.fileproxy, 'w') as f:
+            f.write(self.task['proxy'])
+        self.hc = HitlerClassifier(self.fileproxy, self.filedata, process, {
+                                   'is_parsed': False, 'is_id': self.task['is_id'], 'from_id': 0})
         self.hc.start()
 
     def get_complete(self):
@@ -50,6 +54,7 @@ class task:
         return (complete, data)
 
     def __del__(self):
+        os.remove(self.fileproxy)
         os.remove(self.filedata)
         del self.hc
         print("Okay task {} removed".format(self.task['task']))
