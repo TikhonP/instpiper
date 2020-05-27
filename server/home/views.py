@@ -274,7 +274,7 @@ def makerequest(request):
             data = request.POST['data']
             datatype = request.POST.get('datatype', '')
             proxy = request.POST['proxy']
-            proxysaved = request.POST['proxysaved']
+            proxysaved = request.POST.get('proxysaved', '')
             if len(request.FILES) != 0:
                 if 'proxyfileinput' in request.FILES:
                     try:
@@ -290,7 +290,7 @@ def makerequest(request):
                         messages.error(
                             request, 'Неправильный тип файла с входными данными, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
                         return redirect('/')
-            if proxysaved!='none':
+            if proxysaved!='':
                 proxy = Proxy.objects.get(id=proxysaved).proxy
             if datatype == 'usernames':
                 is_id = False
