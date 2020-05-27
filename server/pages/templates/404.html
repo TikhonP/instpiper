@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %} | Страница не найдена{% endblock %}
+
+{% block nav %}
+<li class="nav-item">
+  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Страница не найдена</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<h1>404 Страница не найдена</h1>
+<br>
+<p>Вы искали  <kbd>{{ request_path }}</kbd>, но не нашли... 😔</p>
+<br>
+<p>Попробуйте перейти на <a href="/">Главную Страницу</a>, и поискать еще раз.</p>
+{% endblock %}

@@ -68,7 +68,6 @@ def scores(matshes):
     return (scores[0][0], scores[0][1])
 
 
-
 def closeMatches(name):
     name = translitt(name)
     names = splits(name, ('_', '.', '-', ' ', '1', '2', '3', '4',

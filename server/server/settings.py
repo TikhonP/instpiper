@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'api',
     'home',
     'pages',
+    'manage_db_tools',
 ]
 
 MIDDLEWARE = [

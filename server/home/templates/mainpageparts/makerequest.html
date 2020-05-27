@@ -1,0 +1,73 @@
+<div class="tab-pane fade" id="makerequest" role="tabpanel" aria-labelledby="makerequest-tab">
+  {% if req_tokens_null %}
+  <h3>У вас нет активных токенов. <a id="tokens-tab" data-toggle="pill" href="#tokens" role="tab" aria-controls="tokens">Добавьте токен</a> и пройдите валидацию.</h3>
+  {% else %}
+  <h1>Новый запрос.</h1>
+  <br>
+  <form method="post" name="makerequest" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="inputGroupSelect01">Выберите токен</label>
+      </div>
+      <select class="custom-select" id="inputGroupSelect01" name="token">
+        <option disabled>Выберите Токен</option>
+        {% for i in req_tokens %}
+        <option>{{ i.token }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="exampleFormControlTextarea1">Введите данные или оставьте пустым про вводе из файла</label>
+      <textarea class="form-control" id="exampleFormControlTextarea1" name="data"></textarea>
+    </div>
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroupFileAddon01">Загрузка файла с данными для распознавания</span>
+      </div>
+      <div class="custom-file">
+        <input name="datafileinput" type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+        <label class="custom-file-label" for="inputGroupFile01">Выберите файл</label>
+      </div>
+    </div>
+    <fieldset class="form-group">
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="datatype" id="inlineRadio1" value="usernames">
+        <label class="form-check-label" for="inlineRadio1">Это юзернеймы</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="datatype" id="inlineRadio2" value="ids">
+        <label class="form-check-label" for="inlineRadio2">Это айдишники</label>
+      </div>
+    </fieldset>
+    {% if not proxy_null %}
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="inputGroupSelect01">Выберите прокси из сохраненных или введите ниже</label>
+      </div>
+      <select name="proxysaved" class="custom-select" id="inputGroupSelect01">
+        <option value="none" selected>Введу ниже</option>
+        {% for i in proxy %}
+        <option value="{{ i.id }}">{{ i.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+    <div class="form-group">
+      <label for="exampleFormControlTextarea1">Введите прокси или оставьте пустым про вводе из файла или выборе из сохраненных</label>
+      <textarea class="form-control" id="exampleFormControlTextarea1" name="proxy"></textarea>
+    </div>
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroupFileAddon01">Загрузка файла с прокси</span>
+      </div>
+      <div class="custom-file">
+        <input name="proxyfileinput" type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+        <label class="custom-file-label" for="inputGroupFile01">Выберите файл</label>
+      </div>
+    </div>
+
+    <input class="btn btn-dark btn-md btn-block" name="makerequest" value="Сделать Запрос" type="submit">
+  </form>
+  {% endif %}
+</div>

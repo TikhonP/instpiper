@@ -9,7 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 with open('../config.json', 'r') as f:
     validtokens = json.load(f)['private_tokens']
 
-columns = ["gender", "username", "id_some_num", "race"]
+columns = ['gender_prediction', 'username', 'user_id', 'race_predictions', 'analysis_type']
+
 
 @csrf_exempt
 def CreateRecRequest(request):
@@ -27,13 +28,15 @@ def CreateRecRequest(request):
             return JsonResponse({'status': 0, 'error': 'Invalid JSON'})
         task = token_hex(20)
         try:
-            proxy = Proxy.objects.filter(author=t[0].author, proxy=data['proxy'])
-            if len(proxy)==0:
+            proxy = Proxy.objects.filter(
+                author=t[0].author, proxy=data['proxy'])
+            if len(proxy) == 0:
                 proxy = Proxy(author=t[0].author, proxy=data['proxy'])
                 proxy.save()
             else:
                 proxy = proxy[0]
-            r = Req(author=t[0].author, token=t[0], data=data['data'], proxy=proxy, is_id=data['is_id'], task=task)
+            r = Req(author=t[0].author, token=t[0], data=data['data'],
+                    proxy=proxy, is_id=data['is_id'], task=task)
         except KeyError as e:
             return JsonResponse({'status': 0, 'error': 'Invalid data, there is not key {}'.format(e)})
         r.save()
@@ -59,7 +62,8 @@ def privateapi(request):
 
         response = []
         for i in r:
-            response.append({'task': i.task, 'data': i.data, 'proxy': i.proxy.proxy, 'is_id': i.is_id})
+            response.append({'task': i.task, 'data': i.data,
+                             'proxy': i.proxy.proxy, 'is_id': i.is_id})
 
         return JsonResponse({'status': 1, 'data': response})
     elif request.method == 'POST':
@@ -79,16 +83,16 @@ def privateapi(request):
         elif data['is_done'] not in range(1, 101):
             return JsonResponse({'status': 0, 'error': 'IS_DONE is out of range. Must be from 1 to 100, but got {}'.format(data['is_done'])})
         r.is_done = int(data['is_done'])
-        out = ""
+        out = ''
         for i in json.loads(data['data']):
             for j in i:
-                out += j+","
-            out = out[:-1]+"\n"
+                out += j+','
+            out = out[:-1]+'\n'
         if r.response is None:
-            oout = ""
+            oout = ''
             for i in columns:
-                oout += i+","
-            out = oout[:-1]+"\n"+out
+                oout += i+','
+            out = oout[:-1]+'\n'+out
             r.response = out
         else:
             r.response += out

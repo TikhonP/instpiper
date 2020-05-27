@@ -37,4 +37,3 @@ class Req(models.Model):
 
     def __str__(self):
         return '{} | {} | {}'.format(self.author, self.task, self.date)
-

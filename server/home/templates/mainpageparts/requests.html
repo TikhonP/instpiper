@@ -1,0 +1,64 @@
+<div class="tab-pane fade show active" id="requests" role="tabpanel" aria-labelledby="requests-tab">
+  {% if requests_null %}
+  <h3>Вы не сделали еще ни одного запроса. <a href="#makerequest" data-toggle="pill" role="tab" aria-controls="makerequest">Попробуйте!</a></h3>
+  {% else %}
+  {% for i in req %}
+  <div class="shadow accordion" id="accordion{{ i.task }}">
+    <div class="card">
+      <div class="card-header">{{ i.date }}{% if i.is_done is 100 %} - Выполнен{% endif %} <a class="btn btn-outline-danger" href="/tools/removereq?req={{ i.task }}">Удалить</a> {% if i.is_done is not 0 %}<a class="btn btn-outline-secondary"
+          href="/tools/downloadcsv?task={{ i.task }}">Скачать CSV</a>{% endif %}</div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            TASK ID - <code>{{ i.task }}</code>
+            <br>
+            В запросе {% if i.is_id %}айдишники{% else %}юзернеймы{% endif %}
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header" id="heading{{ i.task }}">
+        <h2 class="mb-0">
+          <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse{{ i.task }}" aria-expanded="false" aria-controls="collapse{{ i.task }}">
+            Показать содержимое запроса
+          </button>
+        </h2>
+      </div>
+      <div id="collapse{{ i.task }}" class="collapse" aria-labelledby="heading{{ i.task }}" data-parent="#accordion{{ i.task }}">
+        <div class="card-body">
+          <pre>{{ i.data|safe }}</pre>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      {% if i.is_done is not 0 %}
+      <div class="card-header" id="heading{{ i.task }}2">
+        <h2 class="mb-0">
+          <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse{{ i.task }}2" aria-expanded="false" aria-controls="collapse{{ i.task }}2">
+            Показать содержимое ответа
+        </h2>
+      </div>
+      <div id="collapse{{ i.task }}2" class="collapse" aria-labelledby="heading{{ i.task }}2" data-parent="#accordion{{ i.task }}">
+        <div class="card-body">
+          <pre>{{ i.response|safe }}</pre>
+        </div>
+      </div>
+      {% else %}
+      <div class="card-body">
+        Ответ еще не получен, ожидайте.
+      </div>
+      {% endif %}
+    </div>
+    {% if i.is_done is not 0 and i.is_done is not 100 %}
+    <div class="progress" style="height: 20px;">
+      <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ i.is_done }}%" aria-valuenow="{{ i.is_done }}" aria-valuemin="0" aria-valuemax="100">Идет анализ данных выполненно {{ i.is_done }}%
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <br>
+  {% endfor %}
+  {% endif %}
+
+</div>

@@ -57,7 +57,7 @@ class task:
         os.remove(self.fileproxy)
         os.remove(self.filedata)
         del self.hc
-        print("Okay task {} removed".format(self.task['task']))
+        print('Okay task {} removed'.format(self.task['task']))
 
 
 def get_tasks():
@@ -72,10 +72,10 @@ def get_tasks():
 
 def put_task(task):
     """task -> {"task": taskid, "data": data, "is_done": 0-100}"""
-    data=json.dumps(task)
+    data = json.dumps(task)
     print(data)
     tasks = requests.put(url, params=params, data=data)
-    tasks = tasks.json() 
+    tasks = tasks.json()
     if not tasks['status']:
         print('ERROR with request {}'.format(tasks['error']))
         return 1
@@ -108,18 +108,20 @@ def newtasks():
 def main():
     newtasks()
     for i, t in enumerate(main_tasks):
-        if (int(time.time()-t.start_time))>= get_batch_delay:
+        if (int(time.time()-t.start_time)) >= get_batch_delay:
             t.start_time = time.time()
             a = t.get_complete()
             print('Check complete task {}: {}'.format(t.task['task'], a))
             if a[1] is None:
-                if a[0]==100:
-                    put_task({"task": t.task['task'], "data": "[]", "is_done": a[0]})
+                if a[0] == 100:
+                    put_task({'task': t.task['task'],
+                              'data': '[]', 'is_done': a[0]})
                     del main_tasks[i]
                     del t
                 continue
             elif a[0] > 0:
-                put_task({"task": t.task['task'], "data": str(a[1]).replace("'", '"'), "is_done": a[0]})
+                put_task({'task': t.task['task'], 'data': str(
+                    a[1]).replace("'", '"'), 'is_done': a[0]})
                 if a[0] == 100:
                     del main_tasks[i]
                     del t
@@ -133,7 +135,7 @@ def mainloop():
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        print("Usage : python3 main.py <threads count>")
+        print('Usage : python3 main.py <threads count>')
         sys.exit()
     process = int(sys.argv[1])
     mainloop()

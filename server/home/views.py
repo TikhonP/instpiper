@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from api.models import Token, Req, Proxy
-from secrets import token_hex
 import requests
 from django.contrib import messages
 import json
@@ -105,7 +104,7 @@ def registerp(request):
 
 def authed(request):
     if request.method == 'GET':
-        t = Token.objects.filter(author=request.user)
+        t = Token.objects.filter(author=request.user).order_by('-date')
         tokens_null = False
         if len(t) == 0:
             tokens_null = True
@@ -119,10 +118,10 @@ def authed(request):
         if len(rt) == 0:
             req_tokens_null = True
 
-        p = Proxy.objects.filter(author=request.user)
+        p = Proxy.objects.filter(author=request.user).order_by('-date')
         proxy_null = False
         if len(p) == 0:
-            proxy_null =True
+            proxy_null = True
 
         params = {
             'user': request.user,
@@ -136,6 +135,7 @@ def authed(request):
             'proxy_null': proxy_null,
         }
         return render(request, 'authed.html', params)
+
     elif request.method == 'POST':
         if 'makerequest' in request.POST:
             return makerequest(request)
@@ -164,107 +164,6 @@ def logoutp(request):
         return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
 
 
-def addtoken(request):
-    if not request.user.is_authenticated:
-        return redirect('/')
-    else:
-        if request.method == 'POST':
-            name = request.POST.get('name', '')
-            t = Token(author=request.user, token=token_hex(20), name=name)
-            t.save()
-            return redirect('/')
-        else:
-            return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
-
-
-def removetoken(request):
-    if not request.user.is_authenticated:
-        return redirect('/')
-    else:
-        if request.method == 'GET':
-            token = request.GET.get('token', '')
-            t = Token.objects.get(author=request.user, token=token)
-            if t is None:
-                return HttpResponse('Invalid request token with user not found')
-            t.delete()
-            return redirect('/')
-        else:
-            return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
-
-
-def removerequest(request):
-    if not request.user.is_authenticated:
-        return redirect('/')
-    else:
-        if request.method == 'GET':
-            req = request.GET.get('req', '')
-            r = Req.objects.get(author=request.user, task=req)
-            if r is None:
-                return HttpResponse('Invalid request token with user not found')
-            r.delete()
-            return redirect('/')
-        else:
-            return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
-
-
-def removeproxy(request):
-    if not request.user.is_authenticated:
-        return redirect('/')
-    else:
-        if request.method == 'GET':
-            id = request.GET.get('id', '')
-            p = Proxy.objects.get(author=request.user, id=id)
-            if p is None:
-                return HttpResponse('Invalid request token with user not found')
-            p.delete()
-            return redirect('/')
-        else:
-            return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
-
-
-def renameproxy(request):
-    if not request.user.is_authenticated:
-        return redirect('/')
-    else:
-        if request.method == 'POST':
-            id = request.POST.get('id', '')
-            name = request.POST.get('name', '')
-            p = Proxy.objects.get(id=id)
-            if p.author!=request.user:
-                return HttpResponse('Invalid request token with user not found')
-            p.name = name
-            p.save()
-            return redirect('/')
-        else:
-            return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
-
-
-def addproxy(request):
-    if not request.user.is_authenticated:
-        return redirect('/')
-    else:
-        if request.method == 'POST':
-            name = request.POST.get('name', '')
-            proxy = request.POST.get('proxy', '')
-            print(request.FILES)
-            if len(request.FILES) != 0:
-                try:
-                    proxy = request.FILES['proxyfileinput'].read().decode()
-                except UnicodeDecodeError:
-                    messages.error(
-                        request, 'Неправильный тип файла с прокси, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
-                    return redirect('/')
-            if proxy == '':
-                messages.error(
-                    request, 'Пустое прокси, добавьте данные и попробуйте еще раз.')
-                return redirect('/')
-            p = Proxy(author=request.user, proxy=proxy, name=name)
-            p.save()
-            return redirect('/')
-        else:
-            return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
-
-
 def makerequest(request):
     if not request.user.is_authenticated:
         return redirect('/')
@@ -290,7 +189,7 @@ def makerequest(request):
                         messages.error(
                             request, 'Неправильный тип файла с входными данными, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
                         return redirect('/')
-            if proxysaved!='' and proxysaved!='none':
+            if proxysaved != '' and proxysaved != 'none':
                 proxy = Proxy.objects.get(id=proxysaved).proxy
             if datatype == 'usernames':
                 is_id = False
@@ -298,15 +197,15 @@ def makerequest(request):
                 is_id = True
             else:
                 messages.error(
-                        request, 'Вы не выбрали тип входных данных, выберите юзернеймы или id.')
+                    request, 'Вы не выбрали тип входных данных, выберите юзернеймы или id.')
                 return redirect('/')
 
             url = '{}/api/createrequest'.format(domen)
             params = {'token': token}
             req = {
-                "data": data,
-                "is_id": is_id,
-                "proxy": proxy,
+                'data': data,
+                'is_id': is_id,
+                'proxy': proxy,
             }
             answer = requests.post(url, params=params, data=json.dumps(req))
             answer = answer.json()
@@ -318,24 +217,3 @@ def makerequest(request):
                 return redirect('/')
         else:
             return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
-
-
-def dounload_csv_output(request):
-    if not request.user.is_authenticated:
-        return redirect('/')
-    else:
-        if request.method == 'GET':
-            task = request.GET.get('task', '')
-            r = Req.objects.get(task=task)
-            if r.author!=request.user:
-                return HttpResponse('Invalid request request with user not found')
-            res = r.response
-            response = HttpResponse(res, content_type='text/csv charset=utf-8')
-            response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(r.task)
-
-            return response
-        else:
-            return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
-
-
- 

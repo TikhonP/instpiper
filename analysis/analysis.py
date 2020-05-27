@@ -125,19 +125,19 @@ class Consumer(mp.Process):
                 namegenderpred[0] = namegenderpred[0].upper()
             faceweight += 2 if namegenderpred[0] else -1
             if faceweight < 3:
-                if namegenderpred[0] and namegenderpred[0] != "E":
+                if namegenderpred[0] and namegenderpred[0] != 'E':
                     name_gender = transgender[namegenderpred[0]]
                     print(name_gender, user['username'],
                           time.time() - starttime, 'onlyname')
                     self.out_q.put(
-                        [name_gender, None, user['username'], user['user_id'], None, "just_name"])
+                        [name_gender, None, user['username'], user['user_id'], None, 'just_name'])
                 else:
                     self.out_q.put(
-                        [None, user['username'], user['user_id'], None, "unknown acc"])
+                        [None, user['username'], user['user_id'], None, 'unknown acc'])
                     #self.save_output(name_gender, user['username'], user["user_id"])
                 return
-            namegendvec = np.array([0.6 if namegenderpred[0] and namegenderpred[0] != "E" and namegenderpred[0].upper(
-            ) == 'F' else 0.0, 0.6 if namegenderpred[0] and namegenderpred[0] != "E" and namegenderpred[0].upper() == 'M' else 0.0])
+            namegendvec = np.array([0.6 if namegenderpred[0] and namegenderpred[0] != 'E' and namegenderpred[0].upper(
+            ) == 'F' else 0.0, 0.6 if namegenderpred[0] and namegenderpred[0] != 'E' and namegenderpred[0].upper() == 'M' else 0.0])
             enc, nfaces = self.get_encodings(faces)
             if enc and 'username' in user:
                 center_face = centroid_face(enc)
@@ -150,7 +150,7 @@ class Consumer(mp.Process):
                 print(user['username'], time.time() - starttime,
                       race_predictions, gender_prediction)
                 self.out_q.put(
-                    [gender_prediction, user['username'], user['user_id'], race_predictions, "full_analys"])
+                    [gender_prediction, user['username'], user['user_id'], race_predictions, 'full_analys'])
                 #self.save_output(gender_prediction, user['username'], user["user_id"], race_predictions)
 
         except Exception:
@@ -284,7 +284,8 @@ class HitlerClassifier(mp.Process):
         item_list = []
         while True:
             try:
-                item_list.append(self.ready_accounts.get(block=True, timeout=3))
+                item_list.append(
+                    self.ready_accounts.get(block=True, timeout=3))
             except:
                 if item_list:
                     self.howmuch += len(item_list)

@@ -22,21 +22,26 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='req',
             name='date',
-            field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='Date'),
+            field=models.DateTimeField(
+                default=django.utils.timezone.now, verbose_name='Date'),
         ),
         migrations.AlterField(
             model_name='token',
             name='date',
-            field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='Date'),
+            field=models.DateTimeField(
+                default=django.utils.timezone.now, verbose_name='Date'),
         ),
         migrations.CreateModel(
             name='Proxy',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateTimeField(default=django.utils.timezone.now, verbose_name='Date')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
+                ('date', models.DateTimeField(
+                    default=django.utils.timezone.now, verbose_name='Date')),
                 ('proxy', models.TextField()),
                 ('name', models.CharField(default='No Name', max_length=50)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('author', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]

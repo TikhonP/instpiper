@@ -4,12 +4,12 @@
 {% block title %} | Аунтификация{% endblock %}
 
 {% block nav %}
- <li class="nav-item">
-    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">ВХОД</a>
- </li>
-  <li class="nav-item">
-    <a class="nav-link" href="/register/">Зарегистрироваться</a>
-  </li>
+<li class="nav-item">
+  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">ВХОД</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="/register/">Зарегистрироваться</a>
+</li>
 {% endblock %}
 
 {% block content %}
@@ -17,11 +17,11 @@
   {% csrf_token %}
   <div class="form-group">
     <label for="exampleInputEmail1">Имя Пользователя</label>
-    <input required type="text" name="login" placeholder="vasek228" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"/>
+    <input required type="text" name="login" placeholder="vasek228" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
   </div>
   <div class="form-group">
     <label for="exampleInputPassword1">Пароль</label>
-    <input required type="password" name="password" placeholder="123321" class="form-control" id="exampleInputPassword1"/>
+    <input required type="password" name="password" placeholder="123321" class="form-control" id="exampleInputPassword1" />
   </div>
   <button class="btn btn-primary btn-block" type="submit">Войти 🗝</button>
 </form>
