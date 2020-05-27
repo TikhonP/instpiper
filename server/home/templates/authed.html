@@ -95,8 +95,8 @@
         {% for i in req %}
         <div class="shadow accordion" id="accordion{{ i.task }}">
           <div class="card">
-            <div class="card-header">{{ i.date }}{% if i.is_done is 100 %} - Выполнен{% endif %} <a class="btn btn-outline-danger" href="/removereq?req={{ i.task }}">Удалить</a></div>
-            <div class="card-body">
+            <div class="card-header">{{ i.date }}{% if i.is_done is 100 %} - Выполнен{% endif %} <a class="btn btn-outline-danger" href="/removereq?req={{ i.task }}">Удалить</a> {% if i.is_done is not 0 %}<a class="btn btn-outline-secondary" href="/downloadcsv?task={{ i.task }}">Скачать CSV</a>{% endif %}</div> 
+              <div class="card-body">
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                   TASK ID - <code>{{ i.task }}</code>
@@ -125,7 +125,6 @@
               <h2 class="mb-0">
                 <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse{{ i.task }}2" aria-expanded="false" aria-controls="collapse{{ i.task }}2">
                   Показать содержимое ответа
-                </button>
               </h2>
             </div>
             <div id="collapse{{ i.task }}2" class="collapse" aria-labelledby="heading{{ i.task }}2" data-parent="#accordion{{ i.task }}">

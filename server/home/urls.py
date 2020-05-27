@@ -14,4 +14,5 @@ urlpatterns = [
     path('removeproxy/', views.removeproxy, name='removeproxy'),
     path('renameproxy/', views.renameproxy, name='renameproxy'),
     path('addproxy/', views.addproxy, name='addproxy'),
+    path('downloadcsv/', views.dounload_csv_output, name='download_output_csv'),
 ]

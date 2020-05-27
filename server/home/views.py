@@ -290,7 +290,7 @@ def makerequest(request):
                         messages.error(
                             request, 'Неправильный тип файла с входными данными, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
                         return redirect('/')
-            if proxysaved!='':
+            if proxysaved!='' and proxysaved!='none':
                 proxy = Proxy.objects.get(id=proxysaved).proxy
             if datatype == 'usernames':
                 is_id = False
@@ -318,3 +318,24 @@ def makerequest(request):
                 return redirect('/')
         else:
             return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
+
+
+def dounload_csv_output(request):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    else:
+        if request.method == 'GET':
+            task = request.GET.get('task', '')
+            r = Req.objects.get(task=task)
+            if r.author!=request.user:
+                return HttpResponse('Invalid request request with user not found')
+            res = r.response
+            response = HttpResponse(res, content_type='text/csv charset=utf-8')
+            response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(r.task)
+
+            return response
+        else:
+            return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
+
+
+ 
