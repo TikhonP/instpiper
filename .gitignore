@@ -134,4 +134,5 @@ dmypy.json
 
 server/instpiperenv/
 config.json
-server/api/migrations
+server/api/migrations/*
+server/home/migrations/

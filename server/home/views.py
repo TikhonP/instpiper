@@ -122,7 +122,8 @@ def authed(request):
         proxy_null = False
         if len(p) == 0:
             proxy_null = True
-
+        
+        threads = request.user.profile.availible_threads 
         params = {
             'user': request.user,
             'tokens': t,
@@ -133,6 +134,7 @@ def authed(request):
             'req_tokens_null': req_tokens_null,
             'proxy': p,
             'proxy_null': proxy_null,
+            'threads': threads,
         }
         return render(request, 'authed.html', params)
 
@@ -174,6 +176,10 @@ def makerequest(request):
             datatype = request.POST.get('datatype', '')
             proxy = request.POST['proxy']
             proxysaved = request.POST.get('proxysaved', '')
+            threads = request.POST['threads']
+            if threads == '0':
+                messages.error(request, 'Количество потоков не может быть равно нулю, поставьте большее количество потоков')
+                return redirect('/')
             if len(request.FILES) != 0:
                 if 'proxyfileinput' in request.FILES:
                     try:
@@ -206,6 +212,7 @@ def makerequest(request):
                 'data': data,
                 'is_id': is_id,
                 'proxy': proxy,
+                'threads': int(threads),
             }
             answer = requests.post(url, params=params, data=json.dumps(req))
             answer = answer.json()

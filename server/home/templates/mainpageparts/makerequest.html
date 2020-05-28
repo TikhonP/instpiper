@@ -66,7 +66,10 @@
         <label class="custom-file-label" for="inputGroupFile01">Выберите файл</label>
       </div>
     </div>
-
+    <div class="input-group mb-3">
+      <label for="customRange2">Выберите количество потоков. У вас осталось <b>{{ threads }}</b>.</label>
+      <input name="threads" type="range" class="custom-range" min="0" max="{{ threads }}" id="customRange2">
+    </div>
     <input class="btn btn-dark btn-md btn-block" name="makerequest" value="Сделать Запрос" type="submit">
   </form>
   {% endif %}

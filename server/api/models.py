@@ -34,6 +34,7 @@ class Req(models.Model):
     task = models.CharField(max_length=40)
     is_id = models.BooleanField(default=False)
     proxy = models.ForeignKey(Proxy, on_delete=models.SET_NULL, null=True)
+    threads = models.IntegerField()
 
     def __str__(self):
         return '{} | {} | {}'.format(self.author, self.task, self.date)

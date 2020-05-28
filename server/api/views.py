@@ -4,6 +4,7 @@ from .models import Token, Req, Proxy
 from secrets import token_hex
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
 
 
 with open('../config.json', 'r') as f:
@@ -28,6 +29,8 @@ def CreateRecRequest(request):
             return JsonResponse({'status': 0, 'error': 'Invalid JSON'})
         task = token_hex(20)
         try:
+            if t[0].author.profile.availible_threads < data['threads']:
+                return JsonResponse({'status': 0, 'error': 'You have not so much threads ({}), there are availible only {} threads'.format(data['threads'], t[0].author.profile.availible_threads)})
             proxy = Proxy.objects.filter(
                 author=t[0].author, proxy=data['proxy'])
             if len(proxy) == 0:
@@ -36,11 +39,14 @@ def CreateRecRequest(request):
             else:
                 proxy = proxy[0]
             r = Req(author=t[0].author, token=t[0], data=data['data'],
-                    proxy=proxy, is_id=data['is_id'], task=task)
+                    proxy=proxy, is_id=data['is_id'], task=task, threads=data['threads'])
         except KeyError as e:
             return JsonResponse({'status': 0, 'error': 'Invalid data, there is not key {}'.format(e)})
         r.save()
-
+        
+        u = User.objects.get(id=t[0].author.id)
+        u.profile.availible_threads -= data['threads']
+        u.save()
         return JsonResponse({'status': 1, 'task': task})
     else:
         return JsonResponse({'status': 0, 'error': 'Invalid request method ({}). Must be POST.'.format(request.method)})
@@ -63,21 +69,29 @@ def privateapi(request):
         response = []
         for i in r:
             response.append({'task': i.task, 'data': i.data,
-                             'proxy': i.proxy.proxy, 'is_id': i.is_id})
+                             'proxy': i.proxy.proxy, 'is_id': i.is_id, 'threads': i.threads})
 
         return JsonResponse({'status': 1, 'data': response})
     elif request.method == 'POST':
         data = json.loads(request.body)
 
         r = Req.objects.get(task=data['task'])
+        u = r.author
+        u.profile.availible_threads += r.threads
+        u.save()
         r.response = data['data']
         r.is_done = 100
         r.save()
         return JsonResponse({'status': 1})
     elif request.method == 'PUT':
         data = json.loads(request.body)
-
+        
         r = Req.objects.get(task=data['task'])
+
+        if data['is_done']==100:
+            u = r.author
+            u.profile.availible_threads += r.threads
+            u.save()
         if r.is_done == 100:
             return JsonResponse({'status': 0, 'error': 'Task already done'})
         elif data['is_done'] not in range(1, 101):

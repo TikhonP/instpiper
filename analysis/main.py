@@ -41,7 +41,7 @@ class task:
             f.write(self.task['data'])
         with open(self.fileproxy, 'w') as f:
             f.write(self.task['proxy'])
-        self.hc = HitlerClassifier(self.fileproxy, self.filedata, process, {
+        self.hc = HitlerClassifier(self.fileproxy, self.filedata, self.task['threads'], {
                                    'is_parsed': False, 'is_id': self.task['is_id'], 'from_id': 0})
         self.hc.start()
 
