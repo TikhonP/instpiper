@@ -26,7 +26,7 @@ proxypath = 'openproxy.txt'
 process = 1
 
 
-class task:
+class Task:
     def __init__(self, task):
         self.task = task
         self.start_time = time.time()
@@ -51,7 +51,7 @@ class task:
         complete = int((complete/self.task_len)*100)
         if self.hc.done:
             complete = 100
-        return (complete, data)
+        return [complete, data]
 
     def __del__(self):
         os.remove(self.fileproxy)
@@ -100,7 +100,7 @@ def newtasks():
         if t['task'] in main_tasks_ids:
             continue
         print('New task! ', t)
-        main_tasks.append(task(t))
+        main_tasks.append(Task(t))
         main_tasks[len(main_tasks)-1].begin()
         main_tasks_ids.append(t['task'])
 
@@ -119,7 +119,9 @@ def main():
                     del main_tasks[i]
                     del t
                 continue
-            elif a[0] > 0:
+            else:
+                if a[0]==0:
+                    a[0]=1
                 put_task({'task': t.task['task'], 'data': str(
                     a[1]).replace("'", '"'), 'is_done': a[0]})
                 if a[0] == 100:
@@ -134,8 +136,4 @@ def mainloop():
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        print('Usage : python3 main.py <threads count>')
-        sys.exit()
-    process = int(sys.argv[1])
     mainloop()
