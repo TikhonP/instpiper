@@ -77,9 +77,10 @@ def put_task(task):
     tasks = requests.put(url, params=params, data=data)
     try:
         tasks = tasks.json()
-    except json.decoder.JSONDecodeError as e:
+    except Exception as e:
         print('\nREQUEST ERROR "{}"\n'.format(e))
-        print(tasks+'\n'*3)
+        print(tasks.text, '\n'*3)
+        return 1
     if not tasks['status']:
         if tasks['errors']=='deleted':
             return 2

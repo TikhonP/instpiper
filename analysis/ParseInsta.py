@@ -40,8 +40,13 @@ def extract_values(obj, key):
     results = extract(obj, arr, key)
     return results
 
-
 def extract_information(user_id, is_id, prxs):
+    for _ in range(10):
+        data = extract_loop(user_id, is_id, prxs)
+        if data:
+            return data
+    return None
+def extract_loop(user_id, is_id, prxs):
     """Get all the information for the given username."""
     uag = generate_ua()
     headers = {
@@ -106,5 +111,5 @@ def extract_information(user_id, is_id, prxs):
         return data
 
     except Exception:
-        print_exc()
+        #print_exc()
         return None
