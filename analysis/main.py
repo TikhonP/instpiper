@@ -77,7 +77,7 @@ def put_task(task):
     tasks = requests.put(url, params=params, data=data)
     try:
         tasks = tasks.json()
-    except json.JSONDecodeError as e:
+    except json.decoder.JSONDecodeError as e:
         print('\nREQUEST ERROR "{}"\n'.format(e))
         print(tasks+'\n'*3)
     if not tasks['status']:
