@@ -42,6 +42,10 @@ def removerequest(request):
             r = Req.objects.get(author=request.user, task=req)
             if r is None:
                 return HttpResponse('Invalid request token with user not found')
+
+            u = User.objects.get(id=request.user.id)
+            u.profile.availible_threads += r.threads
+            u.save()
             r.delete()
             return redirect('/')
         else:

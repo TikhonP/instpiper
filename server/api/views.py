@@ -86,7 +86,11 @@ def privateapi(request):
     elif request.method == 'PUT':
         data = json.loads(request.body)
         
-        r = Req.objects.get(task=data['task'])
+        r = Req.objects.filter(task=data['task'])
+        if len(r)==0:
+            return JsonResponse({'status': 0, 'error': 'deleted'})
+        else:
+            r = r[0]
 
         if data['is_done']==100:
             u = r.author

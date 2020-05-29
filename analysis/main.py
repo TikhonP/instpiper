@@ -75,8 +75,14 @@ def put_task(task):
     data = json.dumps(task)
     print(data)
     tasks = requests.put(url, params=params, data=data)
-    tasks = tasks.json()
+    try:
+        tasks = tasks.json()
+    except json.JSONDecodeError as e:
+        print('\nREQUEST ERROR "{}"\n'.format(e))
+        print(tasks+'\n'*3)
     if not tasks['status']:
+        if tasks['errors']=='deleted':
+            return 2
         print('ERROR with request {}'.format(tasks['error']))
         return 1
     return None
@@ -86,6 +92,8 @@ def post_task(task):
     """task -> {"task": taskid, "data": data}"""
     tasks = requests.post(url, params=params, data=task).json()
     if not tasks['status']:
+        if tasks['errors']=='deleted':
+            return 2
         print('ERROR with request {}'.format(tasks['error']))
         return 1
     return None
@@ -94,8 +102,8 @@ def post_task(task):
 def newtasks():
     tasks = get_tasks()
     if tasks is None:
-
         return None
+
     for t in tasks:
         if t['task'] in main_tasks_ids:
             continue
@@ -122,9 +130,9 @@ def main():
             else:
                 if a[0]==0:
                     a[0]=1
-                put_task({'task': t.task['task'], 'data': str(
+                req = put_task({'task': t.task['task'], 'data': str(
                     a[1]).replace("'", '"'), 'is_done': a[0]})
-                if a[0] == 100:
+                if a[0] == 100 or req==2:
                     del main_tasks[i]
                     del t
 
