@@ -72,7 +72,11 @@ def get_tasks():
 
 def put_task(task):
     """task -> {"task": taskid, "data": data, "is_done": 0-100}"""
-    data = json.dumps(task)
+    try:
+        data = json.dumps(task)
+    except:
+        print("\nJSON ENCODING ERROR\n\n")
+        print(task)
     print(data)
     tasks = requests.put(url, params=params, data=data)
     try:
@@ -124,15 +128,14 @@ def main():
             if a[1] is None:
                 if a[0] == 100:
                     put_task({'task': t.task['task'],
-                              'data': '[]', 'is_done': a[0]})
+                              'data': [], 'is_done': a[0]})
                     del main_tasks[i]
                     del t
                 continue
             else:
                 if a[0]==0:
                     a[0]=1
-                req = put_task({'task': t.task['task'], 'data': str(
-                    a[1]).replace("'", '"'), 'is_done': a[0]})
+                req = put_task({'task': t.task['task'], 'data': a[1], 'is_done': a[0]})
                 if a[0] == 100 or req==2:
                     del main_tasks[i]
                     del t

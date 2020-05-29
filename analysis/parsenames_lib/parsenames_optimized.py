@@ -45,6 +45,8 @@ class closeMatches:
         translit: bool, include or not python translit, default True
         returns tuple gender (char) and score
         """
+        if not isinstance(name, str):
+            return [None]
 
         if translit:
             name = pn.translitt(name)
@@ -53,7 +55,7 @@ class closeMatches:
             'utf-8'), ctypes.byref(score))
         a = a.decode('utf-8')
         if a != 'E':
-            return (a, float(score.value))
+            return [a, float(score.value)]
         elif score.value == 0.5:
             return [None]
         else:
