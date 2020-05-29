@@ -104,7 +104,12 @@ def privateapi(request):
         out = ''
         for i in data['data']:
             for j in i:
-                out += j+','
+                if isinstance(j, str):
+                    out += j+','
+                elif j is None:
+                    out += "null,"
+                else:
+                    out += str(j)+','
             out = out[:-1]+'\n'
         if r.response is None:
             oout = ''

@@ -43,12 +43,16 @@ class Task:
             f.write(self.task['proxy'])
         self.hc = HitlerClassifier(self.fileproxy, self.filedata, self.task['threads'], {
                                    'is_parsed': False, 'is_id': self.task['is_id'], 'from_id': 0})
+        print("\nSTARTING HC\n")
         self.hc.start()
 
     def get_complete(self):
+        print("\nCHECKING HOW MUCH DONE\n")
         complete = self.hc.how_much_done()
+        print("\nCHECKING ALL READY ACCS\n")
         data = self.hc.get_all_ready_accs()
         complete = int((complete/self.task_len)*100)
+        print("\nCHECKING IF DONE\n")
         if self.hc.done:
             complete = 100
         return [complete, data]
@@ -142,6 +146,7 @@ def main():
 
 
 def mainloop():
+    print("OKEY STARTING CHECKING")
     while True:
         main()
         time.sleep(2)
