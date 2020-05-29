@@ -47,3 +47,17 @@
 </div>
 
 {% endblock %}
+
+{% block scripts %}
+<script>
+  var reqs = {
+    {% for i in req %}
+    {% if i.is_done is not 100 %}
+    "{{ i.token.token }}": "{{ i.task }}",
+    {% endif %}
+    {% endfor %}
+  };
+  var domen = "{{ domen }}";
+</script>
+<script src="{% static 'js/authed.js' %}"></script>
+{% endblock %}

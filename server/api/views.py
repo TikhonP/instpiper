@@ -134,11 +134,15 @@ def CheckComplite(request):
         t = Token.objects.filter(token=token, is_valid=True)
         if len(t) == 0:
             return JsonResponse({'status': 0, 'error': 'Invalid token'})
-
-        data = json.loads(request.body)
-        r = Req.objects.get(task=data['task'])
-        if r is None:
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 0, 'error': 'Invalid body json or empty body'})
+        r = Req.objects.filter(task=data['task'])
+        if len(r)==0:
             return JsonResponse({'status': 0, 'error': 'Invalid task id'})
+        else:
+            r = r[0]
         if r.token != t[0]:
             return JsonResponse({'status': 0, 'error': 'Task id is not valid with token'})
         return JsonResponse({'status': 1, 'task_status': r.is_done})
@@ -168,3 +172,18 @@ def GetData(request):
         return JsonResponse({'status': 1, 'data': r.response})
     else:
         return JsonResponse({'status': 0, 'error': 'Invalid request method ({}). Must be GET.'.format(request.method)})
+
+
+@csrf_exempt
+def js_checkreq(request):
+    if request.method == 'GET':
+        token = request.GET.get('token', '')
+        task = request.GET.get('task', '')
+        
+        r = Req.objects.filter(task=task)
+        if len(r)==0:
+            return JsonResponse({'status': 0, 'error': 'Invalid task id'})
+        r = r[0]
+        if r.token.token != token:
+            return JsonResponse({'status': 0, 'error': 'Invalid token with got task'})
+        return JsonResponse({'status': 1, 'is_done': r.is_done, 'data': r.response})

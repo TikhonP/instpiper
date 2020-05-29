@@ -103,6 +103,7 @@ def registerp(request):
 
 
 def authed(request):
+    global domen
     if request.method == 'GET':
         t = Token.objects.filter(author=request.user).order_by('-date')
         tokens_null = False
@@ -135,6 +136,7 @@ def authed(request):
             'proxy': p,
             'proxy_null': proxy_null,
             'threads': threads,
+            'domen': domen,
         }
         return render(request, 'authed.html', params)
 

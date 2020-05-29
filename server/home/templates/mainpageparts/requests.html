@@ -5,7 +5,7 @@
   {% for i in req %}
   <div class="shadow accordion" id="accordion{{ i.task }}">
     <div class="card">
-      <div class="card-header">{{ i.date }}{% if i.is_done is 100 %} - Выполнен{% endif %} <a class="btn btn-outline-danger" href="/tools/removereq?req={{ i.task }}">Удалить</a> {% if i.is_done is not 0 %}<a class="btn btn-outline-secondary"
+      <div class="card-header">{{ i.date }}{% if i.is_done is 100 %} - <b>Выполнен</b>{% endif %} <a class="btn btn-outline-danger" href="/tools/removereq?req={{ i.task }}">Удалить</a> {% if i.is_done is not 0 %}<a class="btn btn-outline-secondary"
           href="/tools/downloadcsv?task={{ i.task }}">Скачать CSV</a>{% endif %}</div>
       <div class="card-body">
         <ul class="list-group list-group-flush">
@@ -42,7 +42,7 @@
       </div>
       <div id="collapse{{ i.task }}2" class="collapse" aria-labelledby="heading{{ i.task }}2" data-parent="#accordion{{ i.task }}">
         <div class="card-body">
-          <pre>{{ i.response|safe }}</pre>
+          <pre id="response_forjs_{{ i.task }}">{{ i.response|safe }}</pre>
         </div>
       </div>
       {% else %}
@@ -53,7 +53,7 @@
     </div>
     {% if i.is_done is not 0 and i.is_done is not 100 %}
     <div class="progress" style="height: 20px;">
-      <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ i.is_done }}%" aria-valuenow="{{ i.is_done }}" aria-valuemin="0" aria-valuemax="100">Идет анализ данных выполненно {{ i.is_done }}%
+      <div id="progressbar_forjs_{{ i.task }}" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ i.is_done }}%" aria-valuenow="{{ i.is_done }}" aria-valuemin="0" aria-valuemax="100">Идет анализ данных выполненно {{ i.is_done }}%
       </div>
     </div>
     {% endif %}

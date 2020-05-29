@@ -1,25 +1,40 @@
-function luboe_imya(slovar){
-var domen = 'http://...'
-var URL = '/domen/checkrequest?token='
-for (var elem in slovar){
-var xhr = new XMLHttpRequest();
-xhr.open('GET',URL+elem , true);
-xhr.send({'task':slovar[elem]});
-		
-if (xhr.status != 200) {
-    alert(xhr.status + ': ' + xhr.statusText);
-}
+let url = new URL(domen+'/api/private/js');
 
-else {
-        var stat = xhr.responseText;
-	for (var elem_2 in stat){
-	    if (elem_2 == is_done){
-		 if (stat[elem_2] > min){
-		     min = stat[elem_2]
-		 }
-	    }
+function checkreqs() {
+    for (var t in reqs) {
+		var xhr = new XMLHttpRequest();
+
+		url.searchParams.set('token', t);
+		url.searchParams.set('task', reqs[t]);
+
+		xhr.open('GET', url, false);
+		xhr.send();
+				
+		if (xhr.status != 200) {
+		    console.log(`Ошибка ${xhr.status}: ${xhr.statusText}`);
+		}
+		else {
+		    var answer = JSON.parse(xhr.responseText);
+		    
+		    if (answer.is_done == 0)
+				return;
+
+		    var progress = document.getElementById('progressbar_forjs_'+reqs[t]);
+		    if (progress == null)
+				window.location.reload(false);
+		    if (progress.getAttribute('aria-valuenow') != answer.is_done.toString()) {
+				progress.setAttribute('aria-valuenow', answer.is_done.toString());
+				progress.setAttribute('style', `width: ${answer.is_done.toString()}%`);
+				progress.innerHTML = `Идет анализ данных выполненно ${answer.is_done.toString()}%`;
+
+				if (answer.is_done == 100)
+				    window.location.reload(false);				
+
+				var resp = document.getElementById('response_forjs_'+reqs[t]);
+				resp.innerHTML = answer.data;
+		    }
+		}
 	}
-    }
 }
 
-}
+setInterval(checkreqs, 2000);
