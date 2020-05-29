@@ -79,7 +79,7 @@ def privateapi(request):
         u = r.author
         u.profile.availible_threads += r.threads
         u.save()
-        r.response = data['data']
+        r.response = str(data['data'])
         r.is_done = 100
         r.save()
         return JsonResponse({'status': 1})
@@ -102,7 +102,7 @@ def privateapi(request):
             return JsonResponse({'status': 0, 'error': 'IS_DONE is out of range. Must be from 1 to 100, but got {}'.format(data['is_done'])})
         r.is_done = int(data['is_done'])
         out = ''
-        for i in json.loads(data['data']):
+        for i in data['data']:
             for j in i:
                 out += j+','
             out = out[:-1]+'\n'
