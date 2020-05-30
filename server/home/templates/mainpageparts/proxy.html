@@ -43,14 +43,14 @@
   </div>
   <br>
 
-  {% if proxy_null %}
+  {% if len_proxy is 0 %}
   <h1>У вас нет прокси</h1>
   {% else %}
   {% for i in proxy %}
   <div class="shadow accordion" id="accordion{{ i.id }}">
     <div class="card">
       <div class="card-header">
-        <b>{{ i.name }}</b> {{ i.date }}
+        <b>{{ i.name }}</b> {{ i.date }} &nbsp;&nbsp;
         <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#renameproxy{{ i.id }}">
           Переименовать
         </button>

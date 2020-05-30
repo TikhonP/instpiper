@@ -29,7 +29,7 @@
   </div>
 
   <br>
-  {% if tokens_null %}
+  {% if len_tokens is 0 %}
   <h3>У вас нет токенов, создайте один 👆</h3>
   {% else %}
   {% for i in tokens %}

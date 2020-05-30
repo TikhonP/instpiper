@@ -1,11 +1,13 @@
+{% load pluralize %}
+
 <div class="tab-pane fade show active" id="requests" role="tabpanel" aria-labelledby="requests-tab">
-  {% if requests_null %}
+  {% if len_reqs is 0 %}
   <h3>Вы не сделали еще ни одного запроса. <a href="#makerequest" data-toggle="pill" role="tab" aria-controls="makerequest">Попробуйте!</a></h3>
   {% else %}
   {% for i in req %}
   <div class="shadow accordion" id="accordion{{ i.task }}">
     <div class="card">
-      <div class="card-header">{{ i.date }}{% if i.is_done is 100 %} - <b>Выполнен</b>{% endif %} <a class="btn btn-outline-danger" href="/tools/removereq?req={{ i.task }}">Удалить</a> {% if i.is_done is not 0 %}<a class="btn btn-outline-secondary"
+      <div class="card-header">{{ i.date|date:"SHORT_DATETIME_FORMAT" }}{% if i.is_done is 100 %} - <b>Выполнен</b>{% endif %}&nbsp;&nbsp; <a class="btn btn-outline-danger" href="/tools/removereq?req={{ i.task }}">Удалить</a> {% if i.is_done is not 0 %}<a class="btn btn-outline-secondary"
           href="/tools/downloadcsv?task={{ i.task }}">Скачать CSV</a>{% endif %}</div>
       <div class="card-body">
         <ul class="list-group list-group-flush">
@@ -14,7 +16,7 @@
             <br>
             В запросе {% if i.is_id %}айдишники{% else %}юзернеймы{% endif %}
             <br>
-            Используется {{ i.threads }} ядер для этого запроса.
+            {% if i.is_done is not 100 %}Используется{% else %}Использовалось{% endif %} {{ i.threads }} {{ i.threads|rupluralize:"поток,потока,потоков" }} для этого запроса.
         </ul>
       </div>
     </div>

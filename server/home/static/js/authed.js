@@ -38,3 +38,9 @@ function checkreqs() {
 }
 
 setInterval(checkreqs, 2000);
+
+
+function changerange(val) {
+	var out = availiblethreads-parseInt(val)	
+    document.getElementById("label_for_range_makerequest").innerHTML = `Выберите количество потоков. У вас осталось <b>${out}</b>.`;
+}

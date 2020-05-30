@@ -106,13 +106,10 @@ def authed(request):
     global domen
     if request.method == 'GET':
         t = Token.objects.filter(author=request.user).order_by('-date')
-        tokens_null = False
-        if len(t) == 0:
-            tokens_null = True
+        len_tokens = len(t)
+
         r = Req.objects.filter(author=request.user).order_by('-date')
-        requests_null = False
-        if len(r) == 0:
-            requests_null = True
+        len_reqs = len(r)
 
         rt = Token.objects.filter(author=request.user, is_valid=True)
         req_tokens_null = False
@@ -120,23 +117,22 @@ def authed(request):
             req_tokens_null = True
 
         p = Proxy.objects.filter(author=request.user).order_by('-date')
-        proxy_null = False
-        if len(p) == 0:
-            proxy_null = True
+        len_proxy = len(p)
         
         threads = request.user.profile.availible_threads 
         params = {
             'user': request.user,
             'tokens': t,
-            'tokens_null': tokens_null,
+            'len_tokens': len_tokens,
             'req': r,
-            'requests_null': requests_null,
+            'len_reqs': len_reqs,
             'req_tokens': rt,
             'req_tokens_null': req_tokens_null,
             'proxy': p,
-            'proxy_null': proxy_null,
+            'len_proxy': len_proxy,
             'threads': threads,
             'domen': domen,
+            'avthreads': request.user.profile.threads
         }
         return render(request, 'authed.html', params)
 

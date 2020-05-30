@@ -1,5 +1,6 @@
-<div class="tab-pane fade" id="makerequest" role="tabpanel" aria-labelledby="makerequest-tab">
-  {% if req_tokens_null %}
+{% load pluralize %}
+
+<div class="tab-pane fade" id="makerequest" role="tabpanel" aria-labelledby="makerequest-tab"> {% if req_tokens_null %}
   <h3>У вас нет активных токенов. <a id="tokens-tab" data-toggle="pill" href="#tokens" role="tab" aria-controls="tokens">Добавьте токен</a> и пройдите валидацию.</h3>
   {% else %}
   <h1>Новый запрос.</h1>
@@ -67,8 +68,9 @@
       </div>
     </div>
     <div class="input-group mb-3">
-      <label for="customRange2">Выберите количество потоков. У вас осталось <b>{{ threads }}</b>.</label>
-      <input name="threads" type="range" class="custom-range" min="0" max="{{ threads }}" id="customRange2">
+      <label id="label_for_range_makerequest" for="customRange2">Выберите количество потоков. У вас осталось <b>{{ threads }}</b>.</label>
+      <input onchange="changerange(this.value)" name="threads" type="range" class="custom-range" min="0" max="{{ threads }}" value="0" id="customRange2" aria-describedby="rangeHelp">
+      <small id="rangeHelp" class="form-text text-muted">Чем больше потоков тем быстрее выполнится запрос. Однако вы не можете использовать больше {{ avthreads }} {{ avthreads|rupluralize:"поток,потока,потоков" }}.</small>
     </div>
     <input class="btn btn-dark btn-md btn-block" name="makerequest" value="Сделать Запрос" type="submit">
   </form>
