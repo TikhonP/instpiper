@@ -43,16 +43,16 @@ class Task:
             f.write(self.task['proxy'])
         self.hc = HitlerClassifier(self.fileproxy, self.filedata, self.task['threads'], {
                                    'is_parsed': False, 'is_id': self.task['is_id'], 'from_id': 0})
-        print("\nSTARTING HC\n")
+        print("STARTING HC")
         self.hc.start()
 
     def get_complete(self):
-        print("\nCHECKING HOW MUCH DONE\n")
+        print("CHECKING HOW MUCH DONE")
         complete = self.hc.how_much_done()
-        print("\nCHECKING ALL READY ACCS\n")
+        print("CHECKING ALL READY ACCS")
         data = self.hc.get_all_ready_accs()
         complete = int((complete/self.task_len)*100)
-        print("\nCHECKING IF DONE\n")
+        print("CHECKING IF DONE")
         if self.hc.done:
             complete = 100
         return [complete, data]
@@ -90,7 +90,7 @@ def put_task(task):
         print(tasks.text, '\n'*3)
         return 1
     if not tasks['status']:
-        if tasks['errors']=='deleted':
+        if tasks['error']=='deleted':
             return 2
         print('ERROR with request {}'.format(tasks['error']))
         return 1
@@ -101,7 +101,7 @@ def post_task(task):
     """task -> {"task": taskid, "data": data}"""
     tasks = requests.post(url, params=params, data=task).json()
     if not tasks['status']:
-        if tasks['errors']=='deleted':
+        if tasks['error']=='deleted':
             return 2
         print('ERROR with request {}'.format(tasks['error']))
         return 1

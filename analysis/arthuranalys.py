@@ -22,6 +22,8 @@ from threading import Thread
 from deepface.extendedmodels import Gender, Race
 from deepface.commons import functions
 from functools import reduce
+from arthurmodels import FaceGenderModel
+
 
 # def ansambn(*args):
 #    return ["M"]
@@ -97,17 +99,17 @@ class Consumer(mp.Process):
         print('race_model done')
         self.detector = dlib.get_frontal_face_detector()
         print('detector done')
-        self.gender_model = Gender.loadModel()
+        self.gender_model = FaceGenderModel()
         print('gender_models done')
         self.OpenFacemodel = OpenFace.loadModel()
         print('OpenFacemodels done')
         self.OpenFacemodel._make_predict_function()
-        self.gender_model._make_predict_function()
+        #self.gender_model._make_predict_function()
         self.race_model._make_predict_function()
         self.last_time = time.time()
         while True:
             try:
-                acc_json = self.q.get(block = True, timeout=0)
+                acc_json = self.q.get(block = True, timeout=3)
                 self.last_time = time.time()
             except:
                 if (time.time() - self.last_time) > 60:
@@ -146,14 +148,15 @@ class Consumer(mp.Process):
                 img_224 = preprocess_face(
                     facearr, target_size=(224, 224), gray_scale=False)
                 gender_prediction = self.get_gender_multiple(
-                    [img_224], namegendvec)
+                    [nfaces[center_face][0]], namegendvec)
                 race_predictions = self.get_race(img_224)
                 print(user['username'], time.time() - starttime,
                       race_predictions, gender_prediction)
                 self.out_q.put(
                     [gender_prediction, user['username'], user['user_id'], race_predictions, 'full_analys'])
-                #self.save_output(gender_prediction, user['username'], user["user_id"], race_predictions)
                 return
+                #self.save_output(gender_prediction, user['username'], user["user_id"], race_predictions)
+
         except Exception:
             traceback.print_exc()
         self.out_q.put([None, None, None, None, "just_nones"])
@@ -278,17 +281,9 @@ class HitlerClassifier(mp.Process):
             time.sleep(2)
         print('producer started')
         Thread(target = prod.start_producing, args=(self.input_desc['from_id'], q, )).start()
-        last_time = time.time()
         while not self.done:
-            ss = self.ready_accounts.qsize()
-            if ss == 0:
-                print("here", time.time(), last_time)
-                if (time.time() - last_time) > 60:
-                    self.done = True
-                    break
-                continue
-            last_time = time.time()
-            time.sleep(1)
+            self.done = reduce(lambda x,y: x and y, [cns.cns_done for cns in Consumers])
+            time.sleep(10)
 
 
     def get_all_ready_accs(self):

@@ -21,7 +21,6 @@ from deepface.basemodels import OpenFace
 from threading import Thread
 from deepface.extendedmodels import Gender, Race
 from deepface.commons import functions
-from functools import reduce
 
 # def ansambn(*args):
 #    return ["M"]
@@ -84,11 +83,18 @@ class Consumer(mp.Process):
         self.q = q
         self.out_q = out_q
         self.race_model = None
+        #print("race_model done")
         self.detector = None
+        #print("detector done")
         self.gender_model = None
+        #print('gender_models done')
         self.OpenFacemodel = None
-        self.last_time = time.time()
-        self.cns_done = False
+        #print('OpenFacemodels done')
+        # self.OpenFacemodel._make_predict_function()
+        # self.gender_model._make_predict_function()
+        # self.race_model._make_predict_function()
+        # for typemodel in [self.OpenFacemodel, self.gender_model, self.race_model]:
+        #    typemodel._make_predict_function()
 
     def run(self):
         print('I am here')
@@ -104,17 +110,10 @@ class Consumer(mp.Process):
         self.OpenFacemodel._make_predict_function()
         self.gender_model._make_predict_function()
         self.race_model._make_predict_function()
-        self.last_time = time.time()
         while True:
-            try:
-                acc_json = self.q.get(block = True, timeout=0)
-                self.last_time = time.time()
-            except:
-                if (time.time() - self.last_time) > 60:
-                    break
-                continue
+            acc_json = self.q.get()
             self.acc_analyzer(acc_json)
-        self.cns_done = True
+
     def acc_analyzer(self, acc_json):
         try:
             starttime = time.time()
@@ -153,10 +152,9 @@ class Consumer(mp.Process):
                 self.out_q.put(
                     [gender_prediction, user['username'], user['user_id'], race_predictions, 'full_analys'])
                 #self.save_output(gender_prediction, user['username'], user["user_id"], race_predictions)
-                return
+
         except Exception:
             traceback.print_exc()
-        self.out_q.put([None, None, None, None, "just_nones"])
 
     def get_gender_multiple(self, preprfaces, namevec):
         sumvec = np.array([0.0, 0.0])
@@ -277,19 +275,10 @@ class HitlerClassifier(mp.Process):
             cns.start()
             time.sleep(2)
         print('producer started')
-        Thread(target = prod.start_producing, args=(self.input_desc['from_id'], q, )).start()
-        last_time = time.time()
-        while not self.done:
-            ss = self.ready_accounts.qsize()
-            if ss == 0:
-                print("here", time.time(), last_time)
-                if (time.time() - last_time) > 60:
-                    self.done = True
-                    break
-                continue
-            last_time = time.time()
-            time.sleep(1)
-
+        prod.start_producing(self.input_desc['from_id'], q)
+        for cns in Consumers:
+            cns.join()
+        self.done = True
 
     def get_all_ready_accs(self):
         item_list = []
@@ -307,4 +296,12 @@ class HitlerClassifier(mp.Process):
         return self.ready_accounts.qsize() + self.howmuch
 
 
+'''
+inputpath = "parsedexample.txt"
 
+HC = HitlerClassifier("openproxy.txt", "parsedexample.txt", 1, {'is_parsed':False, 'is_id':False, "from_id":0})
+HC.start()
+
+while True:
+    print(HC.how_much_done())
+'''

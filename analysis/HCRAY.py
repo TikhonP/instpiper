@@ -1,5 +1,6 @@
 from PIL import Image
 import requests
+from threading import Thread
 import cv2
 from io import BytesIO
 from keras.preprocessing import image
@@ -21,11 +22,19 @@ from deepface.basemodels import OpenFace
 from threading import Thread
 from deepface.extendedmodels import Gender, Race
 from deepface.commons import functions
-from functools import reduce
+import psutil
+import ray
+import sys
+import psutil
+#num_cpus = psutil.cpu_count(logical=False)
+
+#ray.init(num_cpus=num_cpus)
 
 # def ansambn(*args):
 #    return ["M"]
 
+num_cpus = psutil.cpu_count(logical=False)
+ray.init(num_cpus=num_cpus)
 
 def preprocess_face(face, target_size=(224, 224), gray_scale=False):
     if gray_scale:
@@ -77,22 +86,11 @@ race_labels = ['asian', 'indian', 'black',
 threshold = functions.findThreshold('OpenFace', 'cosine')
 outputfile = ''
 
-
-class Consumer(mp.Process):
-    def __init__(self, q, out_q):
-        super(Consumer, self).__init__()
-        self.q = q
-        self.out_q = out_q
-        self.race_model = None
-        self.detector = None
-        self.gender_model = None
-        self.OpenFacemodel = None
-        self.last_time = time.time()
-        self.cns_done = False
-
-    def run(self):
-        print('I am here')
-        #q = args[0]
+@ray.remote
+class Consumer(object):
+    def __init__(self, i):
+        if sys.platform == 'linux':
+            psutil.Process().cpu_affinity([i])
         self.race_model = Race.loadModel()
         print('race_model done')
         self.detector = dlib.get_frontal_face_detector()
@@ -104,17 +102,7 @@ class Consumer(mp.Process):
         self.OpenFacemodel._make_predict_function()
         self.gender_model._make_predict_function()
         self.race_model._make_predict_function()
-        self.last_time = time.time()
-        while True:
-            try:
-                acc_json = self.q.get(block = True, timeout=0)
-                self.last_time = time.time()
-            except:
-                if (time.time() - self.last_time) > 60:
-                    break
-                continue
-            self.acc_analyzer(acc_json)
-        self.cns_done = True
+
     def acc_analyzer(self, acc_json):
         try:
             starttime = time.time()
@@ -130,13 +118,10 @@ class Consumer(mp.Process):
                     name_gender = transgender[namegenderpred[0]]
                     print(name_gender, user['username'],
                           time.time() - starttime, 'onlyname')
-                    self.out_q.put(
-                        [name_gender, None, user['username'], user['user_id'], None, 'just_name'])
+                    return [name_gender, None, user['username'], user['user_id'], None, 'just_name']
                 else:
-                    self.out_q.put(
-                        [None, user['username'], user['user_id'], None, 'unknown acc'])
+                    return [None, user['username'], user['user_id'], None, 'unknown acc']
                     #self.save_output(name_gender, user['username'], user["user_id"])
-                return
             namegendvec = np.array([0.6 if namegenderpred[0] and namegenderpred[0] != 'E' and namegenderpred[0].upper(
             ) == 'F' else 0.0, 0.6 if namegenderpred[0] and namegenderpred[0] != 'E' and namegenderpred[0].upper() == 'M' else 0.0])
             enc, nfaces = self.get_encodings(faces)
@@ -150,13 +135,11 @@ class Consumer(mp.Process):
                 race_predictions = self.get_race(img_224)
                 print(user['username'], time.time() - starttime,
                       race_predictions, gender_prediction)
-                self.out_q.put(
-                    [gender_prediction, user['username'], user['user_id'], race_predictions, 'full_analys'])
+                return [gender_prediction, user['username'], user['user_id'], race_predictions, 'full_analys']
                 #self.save_output(gender_prediction, user['username'], user["user_id"], race_predictions)
-                return
         except Exception:
             traceback.print_exc()
-        self.out_q.put([None, None, None, None, "just_nones"])
+        return [None, None, None, None, "just_nothing"]
 
     def get_gender_multiple(self, preprfaces, namevec):
         sumvec = np.array([0.0, 0.0])
@@ -263,48 +246,46 @@ class HitlerClassifier(mp.Process):
         self.howmuch = 0
         self.process_count = process_count
         self.input_desc = input_desc
-        self.ready_accounts = mp.Queue()
+        self.ready_accounts = []
+        self.notcompletedtasks = []
         self.done = False
-
+        #num_cpus = psutil.cpu_count(logical=False)
+        #ray.init(num_cpus=self.process_count)
     def run(self):
         q = mp.Queue()
         prod = Producer(proxypath=self.proxypath,
                         is_parsed=self.input_desc['is_parsed'], contents_path=self.inputpath, is_id=self.input_desc['is_id'])
-        Consumers = [Consumer(q, self.ready_accounts)
-                     for _ in range(self.process_count)]
-        print('prod created')
-        for cns in Consumers:
-            cns.start()
-            time.sleep(2)
+        Consumers = [Consumer.remote(i) for i in range(self.process_count)]
         print('producer started')
-        Thread(target = prod.start_producing, args=(self.input_desc['from_id'], q, )).start()
-        last_time = time.time()
-        while not self.done:
-            ss = self.ready_accounts.qsize()
-            if ss == 0:
-                print("here", time.time(), last_time)
-                if (time.time() - last_time) > 60:
-                    self.done = True
-                    break
-                continue
-            last_time = time.time()
-            time.sleep(1)
-
-
-    def get_all_ready_accs(self):
-        item_list = []
+        Thread(target = prod.start_producing, args = (self.input_desc['from_id'], q, )).start()
+        time.sleep(60)
+        c = 0
+        lasttimegot = time.time()
         while True:
             try:
-                item_list.append(
-                    self.ready_accounts.get(block=True, timeout=3))
+                got = q.get(block=True, timeout=3)
+                print("got the thing", got)
+                lasttimegot = time.time()
             except:
-                if item_list:
-                    self.howmuch += len(item_list)
-                    return item_list
-                return None
+                if (time.time() - lasttimegot) > 60:
+                    break
+                    print("it broke")
+                continue
+            print("just about to do it")
+            self.notcompletedtasks.append(Consumers[c].acc_analyzer.remote(got))
+            c += 1
+            c = c % self.process_count
+            print("the thing appended")
+            ready_ids, remaining_ids = ray.wait(self.notcompletedtasks)
+            print(ready_ids, remaining_ids)
+            if ready_ids:
+                self.ready_accounts.extend(ray.get(ready_ids))
+                print(self.ready_accounts)
+            self.notcompletedtasks = remaining_ids
+        self.done = True
+
+    def get_all_ready_accs(self):
+        return self.ready_accounts
 
     def how_much_done(self):
-        return self.ready_accounts.qsize() + self.howmuch
-
-
-
+        return len(self.ready_accounts)
