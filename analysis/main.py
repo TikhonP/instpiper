@@ -1,4 +1,4 @@
-from analysis import HitlerClassifier
+from arthuranalys import HitlerClassifier
 import json
 import os
 import requests
@@ -30,7 +30,7 @@ class Task:
     def __init__(self, task):
         self.task = task
         self.start_time = time.time()
-
+        self.last_not_none = time.time()
     def begin(self):
         self.task_len = len(self.task['data'].split('\n'))
         self.filedata = os.path.join(
@@ -53,7 +53,9 @@ class Task:
         data = self.hc.get_all_ready_accs()
         complete = int((complete/self.task_len)*100)
         print("CHECKING IF DONE")
-        if self.hc.done:
+        if data:
+            self.last_not_none = time.time()
+        if (time.time() - self.last_not_none) > 60:
             complete = 100
         return [complete, data]
 
@@ -146,7 +148,7 @@ def main():
 
 
 def mainloop():
-    print("OKEY STARTING CHECKING")
+    print("OKAY STARTING CHECKING")
     while True:
         main()
         time.sleep(2)

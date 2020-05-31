@@ -279,11 +279,12 @@ class HitlerClassifier(mp.Process):
         print('producer started')
         Thread(target = prod.start_producing, args=(self.input_desc['from_id'], q, )).start()
         last_time = time.time()
-        while not self.done:
+        while True:
             ss = self.ready_accounts.qsize()
             if ss == 0:
                 print("here", time.time(), last_time)
                 if (time.time() - last_time) > 60:
+                    print("done is done")
                     self.done = True
                     break
                 continue

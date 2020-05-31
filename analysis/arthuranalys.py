@@ -167,7 +167,9 @@ class Consumer(mp.Process):
             prd = self.gender_model.predict(fc)[0]
             sumvec += prd
         meanvec = sumvec / len(preprfaces)
+        print(meanvec, "meanvec do")
         meanvec = meanvec + namevec
+        print(meanvec, "meanvec posle")
         return gender_list[np.argmax(meanvec)]
 
     def save_output(self, *args):
@@ -281,9 +283,19 @@ class HitlerClassifier(mp.Process):
             time.sleep(2)
         print('producer started')
         Thread(target = prod.start_producing, args=(self.input_desc['from_id'], q, )).start()
-        while not self.done:
-            self.done = reduce(lambda x,y: x and y, [cns.cns_done for cns in Consumers])
-            time.sleep(10)
+        last_time = time.time()
+        while True:
+            ss = self.ready_accounts.qsize()
+            if ss == 0:
+                #print("here", time.time(), last_time)
+                if (time.time() - last_time) > 60:
+                    print("done is done")
+                    self.done = True
+                    time.sleep(5)
+                    break
+                continue
+            last_time = time.time()
+            time.sleep(1)
 
 
     def get_all_ready_accs(self):

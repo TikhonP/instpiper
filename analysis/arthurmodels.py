@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8 In[1]:
 from torch import nn
 import os
 import dlib
@@ -9,9 +7,10 @@ from torchvision import transforms
 import torch
 class FaceGenderModel():
     def __init__(self):
-        self.model = models.resnet50(True)
+        self.model = models.resnet50(False)
         self.model.fc = nn.Linear(2048, 2)
         self.model.load_state_dict(torch.load('second_weights'))
+        self.model.eval()
         self.transform = transforms.Compose([
     transforms.Resize((250,200)),
     transforms.ToTensor(),
@@ -26,9 +25,9 @@ class FaceGenderModel():
             img1 = Image.open(path)
             img1 = img1.crop((d.left(), d.top(), d.right(), d.bottom()))
             img1.save(path)
-    def predict(self, img, namevec):
+    def predict(self,img):
         #cutted_img = self.cutting_image(path) img = Image.open(path)
         timg = self.transform(img).unsqueeze(0)
         #print(timg.unsqueeze(0).shape)
         pred = torch.softmax(self.model(timg),dim=1)
-        return pred
+        return pred.detach().numpy()
