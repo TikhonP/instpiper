@@ -1,0 +1,24 @@
+.btn-primary:active,
+.btn-primary:visited,
+.btn-primary {
+    background-color: #81B0C0;
+    border-color: #81B0C0;
+}
+  .btn-primary:hover,
+  .btn-primary:focus {
+ background-color: #58A4B0;
+    border-color: #58A4B0;
+  }
+
+.border-success {
+    color: #53AB6B;
+}
+
+.btn-outline-danger:active,
+.btn-outline-danger:hover,
+.btn-outline-danger {
+    color: #A35252;
+    background-color: #A35252;
+    border-color: #A35252;
+
+}

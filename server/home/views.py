@@ -7,6 +7,7 @@ import requests
 from django.contrib import messages
 import json
 import re
+from .forms import LoginForm, RegisterForm
 
 
 with open('../config.json', 'r') as f:
@@ -42,64 +43,51 @@ def main(request):
         else:
             return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
 
-
 def loginp(request):
     if request.user.is_authenticated:
         return authed(request)
-    else:
-        if request.method == 'GET':
-            return render(request, 'login.html')
-        elif request.method == 'POST':
-            password = request.POST['password']
-            username = request.POST['login']
-            user = authenticate(username=username, password=password)
-            if user:
-                login(request, user)
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            user = authenticate(username=cd['username'], password=cd['password'])
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return redirect('/')
+                else:
+                    messages.error(request, "Неактивный аккаунт")
             else:
                 messages.error(request, 'Неправильный логин или пароль!')
-                return redirect('/login')
-            return redirect('/')
-        else:
-            return HttpResponse('Invalid requsest method ({}) Must be GET or POST'.format(request.method))
-
+    elif request.method == 'GET':
+        form = LoginForm()
+    else:
+        return HttpResponse('Invalid requsest method ({}) Must be GET or POST'.format(request.method))
+    return render(request, 'login.html', {'form': form})
 
 def registerp(request):
     if request.user.is_authenticated:
         return authed(request)
-    else:
-        if request.method == 'GET':
-            return render(request, 'register.html')
-        elif request.method == 'POST':
-            password1 = request.POST['password1']
-            password2 = request.POST['password2']
-            username = request.POST['login']
-            email = request.POST['email']
-            if password1 != password2:
-                messages.error(
-                    request, 'Пароли не совпадают! Проверьте правильность ввода паролей или придумайте новые.')
-                return redirect('/register')
-            check = pcheck(password1)
-            if type(check) == type(''):
-                messages.error(request, check)
-                return redirect('/register')
-            user = authenticate(username=username, password=password1)
-            if not user:
-                user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    password=password1,
-                    last_name=request.POST['lastName'],
-                    first_name=request.POST['firstName']
-                )
-                user.save()
-                login(request, user)
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            if cd['password']!=cd['password1']:
+                messages.error(request, 'Пароли не совпадают! Проверьте правильность ввода паролей или придумайте новые.')
             else:
-                messages.error(
-                    request, 'Логин уже существует! Придумайте новый, проявите фантазию!')
-                return redirect('/register')
-            return redirect('/')
-        else:
-            return HttpResponse('Invalid requsest method ({}) Must be GET or POST'.format(request.method))
+                user = authenticate(username=cd['username'], password=cd['password'])
+                if not user:
+                    user = form.save()
+                    login(request, user)
+                    return redirect('/')
+                else:
+                    messages.error(
+                        request, 'Логин уже существует! Придумайте новый, проявите фантазию!')
+    elif request.method == 'GET':
+        form = RegisterForm()
+    else:
+        return HttpResponse('Invalid requsest method ({}) Must be GET or POST'.format(request.method))
+    return render(request, 'register.html', {'form': form})
 
 
 def authed(request):

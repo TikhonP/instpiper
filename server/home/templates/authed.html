@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %} | {{ user.first_name }}{% endblock %}
+{% block title %} · {{ user.first_name }}{% endblock %}
 
 {% block nav %}
 <li class="nav-item">
@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block endnav %}
-<a href="/logout/"><button class="btn btn-outline-dark my-2 my-sm-0">Выйти</button></a>
+<a href="/logout/"><button class="btn btn-outline-light my-2 my-sm-0">Выйти</button></a>
 {% endblock %}
 
 {% block content %}
@@ -29,7 +29,7 @@
   <div class="col-3">
     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
       <a class="nav-link" id="tokens-tab" data-toggle="pill" href="#tokens" role="tab" aria-controls="tokens" aria-selected="false">Токены {% if len_tokens is not 0 %}<span class="badge badge-light">{{ len_tokens }}</span>{% endif %}</a>
-      <a class="nav-link active" id="requests-tab" data-toggle="pill" href="#requests" role="tab" aria-controls="requests" aria-selected="true">Запросы  {% if len_reqs is not 0 %}<span class="badge badge-light">{{ len_reqs }}</span>{% endif %}</a>
+      <a class="nav-link active" id="requests-tab" data-toggle="pill" href="#requests" role="tab" aria-controls="requests" aria-selected="true">Запросы {% if len_reqs is not 0 %}<span class="badge badge-light">{{ len_reqs }}</span>{% endif %}</a>
       <a class="nav-link" id="settins-tab" data-toggle="pill" href="#settings" role="tab" aria-controls="settings" aria-selected="false">Настройки</a>
       <a class="nav-link" id="makerequest-tab" data-toggle="pill" href="#makerequest" role="tab" aria-controls="makerequest" aria-selected="false">Сделать Запрос</a>
       <a class="nav-link" id="proxy-tab" data-toggle="pill" href="#proxy" role="tab" aria-controls="proxy" aria-selected="false">Прокси {% if len_proxy is not 0 %}<span class="badge badge-light">{{ len_proxy }}</span>{% endif %}</a>
