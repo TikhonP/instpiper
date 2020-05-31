@@ -1,3 +1,5 @@
+{% load pluralize %}
+
 <div class="tab-pane fade" id="proxy" role="tabpanel" aria-labelledby="proxy-tab">
   <button type="button" class="btn btn-secondary btn-md btn-block" data-toggle="modal" data-target="#addproxy">Добавить Прокси</button>
 
@@ -94,7 +96,7 @@
       </div>
       <div id="collapse{{ i.id }}" class="collapse" aria-labelledby="heading{{ i.id }}" data-parent="#accordion{{ i.id }}">
         <div class="card-body">
-          <pre>{{ i.proxy|safe }}</pre>
+          <pre>{{ i.proxy|cutlines }}</pre>
         </div>
       </div>
     </div>

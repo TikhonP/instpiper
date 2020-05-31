@@ -20,3 +20,8 @@ def rupluralize(value, arg="дурак,дурака,дураков"):
         return args[1]
     else:
         return args[2]
+
+
+@register.filter
+def cutlines(value):
+    return "\n".join(value.split('\n')[:100])

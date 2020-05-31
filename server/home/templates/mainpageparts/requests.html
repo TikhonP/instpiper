@@ -16,7 +16,8 @@
             <br>
             В запросе {% if i.is_id %}айдишники{% else %}юзернеймы{% endif %}
             <br>
-            {% if i.is_done is not 100 %}Используется{% else %}Использовалось{% endif %} {{ i.threads }} {{ i.threads|rupluralize:"поток,потока,потоков" }} для этого запроса.
+            {% if i.is_done is not 100 %}Используется{% else %}Использовалось{% endif %} {{ i.threads }} {{ i.threads|rupluralize:"поток,потока,потоков" }} для этого запроса.<br>
+            <i class"text-secondary">Обратите винмание, что в превью отображается только первые 100 строчек, чтобы посмотреть все данные нажмите скачать CSV. {% if i.is_done is 0 %}(Cейчас не доступно, потому что ответ еще не готов){% endif %}</i>
         </ul>
       </div>
     </div>
@@ -30,7 +31,7 @@
       </div>
       <div id="collapse{{ i.task }}" class="collapse" aria-labelledby="heading{{ i.task }}" data-parent="#accordion{{ i.task }}">
         <div class="card-body">
-          <pre>{{ i.data|safe }}</pre>
+          <pre>{{ i.data|cutlines }}</pre>
         </div>
       </div>
     </div>
@@ -44,7 +45,7 @@
       </div>
       <div id="collapse{{ i.task }}2" class="collapse" aria-labelledby="heading{{ i.task }}2" data-parent="#accordion{{ i.task }}">
         <div class="card-body">
-          <pre id="response_forjs_{{ i.task }}">{{ i.response|safe }}</pre>
+          <pre id="response_forjs_{{ i.task }}">{{ i.response|cutlines }}</pre>
         </div>
       </div>
       {% else %}
@@ -64,5 +65,4 @@
   <br>
   {% endfor %}
   {% endif %}
-
 </div>
