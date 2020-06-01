@@ -148,7 +148,7 @@ def main():
 
 
 def mainloop():
-    print("OKAY STARTING CHECKING")
+    print("OKAY, BEGIN CHEKING")
     while True:
         main()
         time.sleep(2)
