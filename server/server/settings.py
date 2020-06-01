@@ -123,3 +123,5 @@ DATETIME_FORMAT = 'j E Y, H:i'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 31457280
