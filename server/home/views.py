@@ -3,11 +3,11 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from api.models import Token, Req, Proxy
-import requests
 from django.contrib import messages
 import json
 import re
 from .forms import LoginForm, RegisterForm
+from secrets import token_hex
 
 
 with open('../config.json', 'r') as f:
@@ -166,10 +166,12 @@ def makerequest(request):
             if threads == '0':
                 messages.error(request, 'Количество потоков не может быть равно нулю, поставьте большее количество потоков')
                 return redirect('/')
+            proxyname = 'Без имени'
             if len(request.FILES) != 0:
                 if 'proxyfileinput' in request.FILES:
                     try:
                         proxy = request.FILES['proxyfileinput'].read().decode()
+                        proxyname = request.FILES['proxyfileinput'].name
                     except UnicodeDecodeError:
                         messages.error(
                             request, 'Неправильный тип файла с прокси, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
@@ -192,21 +194,37 @@ def makerequest(request):
                     request, 'Вы не выбрали тип входных данных, выберите юзернеймы или id.')
                 return redirect('/')
 
-            url = '{}/api/createrequest'.format(domen)
             params = {'token': token}
-            req = {
+            data = {
                 'data': data,
                 'is_id': is_id,
                 'proxy': proxy,
                 'threads': int(threads),
             }
-            answer = requests.post(url, params=params, data=json.dumps(req))
-            answer = answer.json()
-            if answer['status']:
-                return redirect('/')
-            else:
+
+            task = token_hex(20)
+
+            t = Token.objects.get(token=token, is_valid=True)
+
+            if t.author.profile.availible_threads < data['threads']:
                 messages.error(
-                    request, 'Ошибка создания запроса {}'.format(answer['error']))
+                    request, 'Вы выбрали слишком много потоков ({}), на данный момент доступно {}'.format(data['threads'], t.author.profile.availible_threads))
                 return redirect('/')
+            proxy = Proxy.objects.filter(
+                author=t.author, proxy=data['proxy'])
+            if len(proxy) == 0:
+                proxy = Proxy(author=t.author, proxy=data['proxy'], name=proxyname)
+                proxy.save()
+            else:
+                proxy = proxy[0]
+            r = Req(author=t.author, token=t, data=data['data'],
+                    proxy=proxy, is_id=data['is_id'], task=task, threads=data['threads'])
+            r.save()
+        
+            u = User.objects.get(id=t.author.id)
+            u.profile.availible_threads -= data['threads']
+            u.save()
+            
+            return redirect('/')
         else:
             return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))

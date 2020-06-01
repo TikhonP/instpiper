@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core import validators
+from api.models import Token, Req, Proxy
 
 
 class LoginForm(forms.Form):
@@ -19,3 +20,11 @@ class RegisterForm(forms.ModelForm):
         model = User
         fields = ('first_name', 'last_name', 'email', 'username', 'password')
     password1 = forms.CharField(max_length=20, label="Введите пароль ещё раз",  widget=forms.PasswordInput(attrs={'placeholder': '123321', "class": "form-control" }))
+
+'''
+class MakerequestForm(forms.Form):
+    token = forms.ChoiceField(label="Выберите токен", queryset=rt = Token.objects.filter(author=request.user, is_valid=True))
+    class Meta():
+        model = Req
+        fields = ()
+'''

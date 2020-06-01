@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Стандартный импорт библиотеки шаблонов
 from django import template
 
-# Это чтобы register.filter работал
 register = template.Library()
 
-# Расскажем django о нашем крутом фильтре
 @register.filter
 def rupluralize(value, arg="дурак,дурака,дураков"):
     args = arg.split(",")

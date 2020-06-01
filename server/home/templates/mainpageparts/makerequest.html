@@ -23,12 +23,9 @@
       <textarea class="form-control" id="exampleFormControlTextarea1" name="data"></textarea>
     </div>
     <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text" id="inputGroupFileAddon01">Загрузка файла с данными для распознавания</span>
-      </div>
-      <div class="custom-file">
-        <input name="datafileinput" type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
-        <label class="custom-file-label" for="inputGroupFile01">Выберите файл</label>
+      <div class="custom-file ">
+        <input name="datafileinput" type="file" class="custom-file-input" id="fileinputdata">
+        <label class="custom-file-label" for="fileinputdata" data-browse="Выбрать файл">Загрузка файла с данными для распознавания</label>
       </div>
     </div>
     <fieldset class="form-group">
@@ -59,14 +56,12 @@
       <textarea class="form-control" id="exampleFormControlTextarea1" name="proxy"></textarea>
     </div>
     <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <span class="input-group-text" id="inputGroupFileAddon01">Загрузка файла с прокси</span>
-      </div>
-      <div class="custom-file">
-        <input name="proxyfileinput" type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
-        <label class="custom-file-label" for="inputGroupFile01">Выберите файл</label>
+      <div class="custom-file ">
+        <input name="proxyfileinput" type="file" class="custom-file-input" id="fileinputproxy">
+        <label class="custom-file-label" for="fileinputdata" data-browse="Выбрать файл">Загрузка файла с прокси</label>
       </div>
     </div>
+
     <div class="input-group mb-3">
       <label id="label_for_range_makerequest" for="customRange2">Выберите количество потоков. У вас осталось <b>{{ threads }}</b>.</label>
       <input onchange="changerange(this.value)" name="threads" type="range" class="custom-range" min="0" max="{{ threads }}" value="0" id="customRange2" aria-describedby="rangeHelp">

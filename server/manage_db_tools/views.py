@@ -97,6 +97,7 @@ def addproxy(request):
             if len(request.FILES) != 0:
                 try:
                     proxy = request.FILES['proxyfileinput'].read().decode()
+                    proxyname = request.FILES['proxyfileinput'].name
                 except UnicodeDecodeError:
                     messages.error(
                         request, 'Неправильный тип файла с прокси, проверьте кодировку и тип. Должен быть текстовый файл в utf-8.')
@@ -105,6 +106,8 @@ def addproxy(request):
                 messages.error(
                     request, 'Пустое прокси, добавьте данные и попробуйте еще раз.')
                 return redirect('/')
+            if name=='':
+                name = proxyname
             p = Proxy(author=request.user, proxy=proxy, name=name)
             p.save()
             return redirect('/')

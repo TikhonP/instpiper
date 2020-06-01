@@ -25,15 +25,11 @@
               <textarea class="form-control" id="exampleFormControlTextarea1" name="proxy"></textarea>
             </div>
             <div class="input-group mb-3">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="inputGroupFileAddon01">Загрузка файла с прокси</span>
-              </div>
-              <div class="custom-file">
-                <input name="proxyfileinput" type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
-                <label class="custom-file-label" for="inputGroupFile01">Выберите файл</label>
+              <div class="custom-file ">
+                <input name="proxyfileinput" type="file" class="custom-file-input" id="fileinputproxyp">
+                <label class="custom-file-label" for="fileinputdata" data-browse="Выбрать файл">Загрузка файла с прокси</label>
               </div>
             </div>
-
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
@@ -44,7 +40,6 @@
     </div>
   </div>
   <br>
-
   {% if len_proxy is 0 %}
   <h1>У вас нет прокси</h1>
   {% else %}
@@ -70,7 +65,7 @@
                 <div class="modal-body">
                   <div class="form-group">
                     <label for="tokenname">Имя прокси</label>
-                    <input type="text" name="name" class="form-control" id="tokentext" aria-describedby="tokentextd">
+                    <input type="text" name="name" class="form-control" id="tokentext" aria-describedby="tokentextd" value="{{ i.name }}">
                     <small id="tokentextd" class="form-text text-muted">Используйте это поле, чтобы вести учет ваших прокси</small>
                   </div>
                   <input type="hidden" name="id" value="{{ i.id }}" />
