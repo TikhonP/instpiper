@@ -237,26 +237,23 @@ class Producer():
             user['avatar']), True]] + [[get_image(url), False] for url in user['photo_urls'][:5]]
         return returnuser
 
-    def parse_addtoque(self, userdata, q):
-        thr = Thread(target=self.thr_func, args=(userdata, q, ))
-        thr.start()
-        # self.thrs.append(thr)
-
-    def thr_func(self, userdata, q):
+    def thr_func(self, userdata, q, shm):
         if not self.is_parsed:
-            userdata = extract_information(userdata, self.is_id, self.proxies)
-        got = self.process_userjson(userdata)
-        if got:
+            userdata, stats = extract_information(userdata, self.is_id, self.proxies)
+            for i, key in enumerate(stats):
+                shm[i] += stats[key]
+        if userdata:
+            got = self.process_userjson(userdata)
             q.put(got)
 
-    def start_producing(self, fromind, q):
+    def start_producing(self, fromind, q, shm):
         for ind, line in enumerate(open(self.contents_path)):
             if ind < fromind:
                 continue
             if q.qsize() > 100:
                 time.sleep(10)
-            Thread(target=self.parse_addtoque, args=(
-                line.replace('\n', ''), q,)).start()
+            Thread(target=self.thr_func, args=(
+                line.replace('\n', ''), q, shm, )).start()
             time.sleep(1)
 
 
@@ -270,32 +267,17 @@ class HitlerClassifier(mp.Process):
         self.input_desc = input_desc
         self.ready_accounts = mp.Queue()
         self.done = False
+        self.proxystats = mp.Array('i', [0, 0])
 
     def run(self):
         q = mp.Queue()
-        prod = Producer(proxypath=self.proxypath,
-                        is_parsed=self.input_desc['is_parsed'], contents_path=self.inputpath, is_id=self.input_desc['is_id'])
-        Consumers = [Consumer(q, self.ready_accounts)
-                     for _ in range(self.process_count)]
-        print('prod created')
-        for cns in Consumers:
+        prod = Producer(proxypath=self.proxypath, is_parsed=self.input_desc['is_parsed'], contents_path=self.inputpath, is_id=self.input_desc['is_id'])
+        cnsms = [Consumer(q, self.ready_accounts) for _ in range(self.process_count)]
+        for cns in cnsms:
             cns.start()
             time.sleep(2)
         print('producer started')
-        Thread(target = prod.start_producing, args=(self.input_desc['from_id'], q, )).start()
-        last_time = time.time()
-        while True:
-            ss = self.ready_accounts.qsize()
-            if ss == 0:
-                #print("here", time.time(), last_time)
-                if (time.time() - last_time) > 60:
-                    print("done is done")
-                    self.done = True
-                    time.sleep(5)
-                    break
-                continue
-            last_time = time.time()
-            time.sleep(1)
+        prod.start_producing(self.input_desc['from_id'], q, self.proxystats, )
 
 
     def get_all_ready_accs(self):

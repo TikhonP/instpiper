@@ -6,8 +6,6 @@ from traceback import print_exc
 from requests import get
 import random
 import json
-from prxanalys import processproxyrow
-
 ua = open('source_data/useragents.txt', 'r').read().split('\n')
 
 
@@ -15,6 +13,7 @@ def generate_ua():
     u = ua[random.randint(0, len(ua) - 1)]
 
     return u
+
 
 
 def prx_convert(proxy_string):
@@ -50,7 +49,7 @@ def extract_information(user_id, is_id, prxs):
             stats["success"] += 1
             return data, stats
         stats["error"] += 1
-    return None, stats
+    return None
 def extract_loop(user_id, is_id, prxs):
     """Get all the information for the given username."""
     uag = generate_ua()
@@ -58,11 +57,8 @@ def extract_loop(user_id, is_id, prxs):
         'User-Agent': uag,
     }
     proxy = random.choice(prxs)
-    proxy = proxy.replace('\n', "").replace(' ', '')
-    proxy = processproxyrow(proxy)
-    if not proxy:
-        return None
-    #proxy = proxy.split('@')[1] + '@' + proxy.split('@')[0]
+    proxy = proxy.replace('\n', '').replace(' ', '')
+    proxy = proxy.split('@')[1] + '@' + proxy.split('@')[0]
     uproxy = {
         'http': 'http://' + proxy,
         'https': 'http://' + proxy

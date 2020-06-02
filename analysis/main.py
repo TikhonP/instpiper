@@ -52,7 +52,7 @@ class Task:
         print("CHECKING ALL READY ACCS")
         data = self.hc.get_all_ready_accs()
         complete = int((complete/self.task_len)*100)
-        print("CHECKING IF DONE")
+        print("CHECKING IF DONE", self.hc.proxystats[0], self.hc.proxystats[1])
         if data:
             self.last_not_none = time.time()
         if (time.time() - self.last_not_none) > 60:

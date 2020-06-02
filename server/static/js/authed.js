@@ -44,3 +44,30 @@ function changerange(val) {
 	var out = availiblethreads-parseInt(val)	
     document.getElementById("label_for_range_makerequest").innerHTML = `Выберите количество потоков. У вас осталось <b>${out}</b>.`;
 }
+
+$('#fileinputdata').on('change',function(){
+		//get the file name
+		var fileName = $(this).val();
+		//replace the "Choose a file" label
+		var cleanFileName = fileName.replace('C:\\fakepath\\', " ");
+
+		$(this).next('.custom-file-label').html(cleanFileName);
+})
+
+$('#fileinputproxy').on('change',function(){
+		//get the file name
+		var fileName = $(this).val();
+		//replace the "Choose a file" label
+		var cleanFileName = fileName.replace('C:\\fakepath\\', " ");
+
+		$(this).next('.custom-file-label').html(cleanFileName);
+})
+
+$('#fileinputproxyp').on('change',function(){
+		//get the file name
+		var fileName = $(this).val();
+		//replace the "Choose a file" label
+		var cleanFileName = fileName.replace('C:\\fakepath\\', " ");
+
+		$(this).next('.custom-file-label').html(cleanFileName);
+})
