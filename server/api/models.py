@@ -19,6 +19,7 @@ class Proxy(models.Model):
     date = models.DateTimeField(('Date'), default=timezone.now)
     proxy = models.TextField()
     name = models.CharField(max_length=50, default='No Name')
+    health = models.IntegerField(default=101)
 
     def __str__(self):
         return '{} | {} | {}...'.format(self.author, self.name, self.proxy[:50])

@@ -80,6 +80,18 @@
         </div>
         <a class="btn btn-outline-danger" href="/tools/removeproxy?id={{ i.id }}">Удалить</a>
       </div>
+      <div class="card-body">
+        {% if i.health < 60 %}
+        <div class="text-danger">Качество вашего прокси - плохое. Только {{ i.health }}% работает.</div>
+        <small>Это может существенно повлиять на результат распознавания</small>
+        {% else %}
+        {% if i.health is 101 %}
+        Качество прокси не проверено.
+        {% else %}
+        Качество прокси - {{ i.health }}%.
+        {% endif %}
+        {% endif %}
+      </div>
     </div>
     <div class="card">
       <div class="card-header" id="heading{{ i.id }}">

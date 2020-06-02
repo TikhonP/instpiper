@@ -16,7 +16,15 @@
             <br>
             В запросе {% if i.is_id %}айдишники{% else %}юзернеймы{% endif %}
             <br>
-            {% if i.is_done is not 100 %}Используется{% else %}Использовалось{% endif %} {{ i.threads }} {{ i.threads|rupluralize:"поток,потока,потоков" }} для этого запроса.<br>
+            {% if i.is_done is not 100 %}Используется{% else %}Использовалось{% endif %} {{ i.threads }} {{ i.threads|rupluralize:"поток,потока,потоков" }} для этого запроса.
+            <br>
+            <br>
+        {% if i.is_done is not 100 and i.proxy.health < 60 %}
+        <div class="text-danger">Качество вашего прокси - плохое. Только {{ i.proxy.health }}% работает.</div>
+        <small>Это может существенно повлиять на результат распознавания</small>
+        <br>
+        <br>
+        {% endif %}
             <i class"text-secondary">Обратите винмание, что в превью отображается только первые 100 строчек, чтобы посмотреть все данные нажмите скачать CSV. {% if i.is_done is 0 %}(Cейчас не доступно, потому что ответ еще не готов){% endif %}</i>
         </ul>
       </div>

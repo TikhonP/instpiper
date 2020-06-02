@@ -107,7 +107,7 @@ def authed(request):
         p = Proxy.objects.filter(author=request.user).order_by('-date')
         len_proxy = len(p)
         
-        threads = request.user.profile.availible_threads 
+        lbp = len(p.filter(health__lt=60))
         params = {
             'user': request.user,
             'tokens': t,
@@ -118,9 +118,10 @@ def authed(request):
             'req_tokens_null': req_tokens_null,
             'proxy': p,
             'len_proxy': len_proxy,
-            'threads': threads,
+            'threads': request.user.profile.availible_threads,
             'domen': domen,
-            'avthreads': request.user.profile.threads
+            'avthreads': request.user.profile.threads,
+            'len_bad_proxy': lbp,
         }
         return render(request, 'authed.html', params)
 
