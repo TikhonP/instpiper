@@ -57,7 +57,11 @@ class Task:
             self.last_not_none = time.time()
         if (time.time() - self.last_not_none) > 60:
             complete = 100
-        return [complete, data]
+        try:
+            proxy_health = (self.hc.proxystats[0] * 100)/(self.hc.proxystats[0] + self.hc.proxystats[1])
+        except ZeroDivisionError:
+            proxy_health = 101
+        return [complete, data, proxy_health]
 
     def __del__(self):
         os.remove(self.fileproxy)
@@ -77,7 +81,7 @@ def get_tasks():
 
 
 def put_task(task):
-    """task -> {"task": taskid, "data": data, "is_done": 0-100}"""
+    """task -> {"task": taskid, "data": data, "is_done": 0-100, "proxy_health": 0-101}"""
     try:
         data = json.dumps(task)
     except:
@@ -98,7 +102,7 @@ def put_task(task):
         return 1
     return None
 
-
+''' Post is not supporting yet
 def post_task(task):
     """task -> {"task": taskid, "data": data}"""
     tasks = requests.post(url, params=params, data=task).json()
@@ -108,6 +112,7 @@ def post_task(task):
         print('ERROR with request {}'.format(tasks['error']))
         return 1
     return None
+'''
 
 
 def newtasks():
@@ -134,14 +139,14 @@ def main():
             if a[1] is None:
                 if a[0] == 100:
                     put_task({'task': t.task['task'],
-                              'data': [], 'is_done': a[0]})
+                              'data': [], 'is_done': a[0], "proxy_health": a[2]})
                     del main_tasks[i]
                     del t
                 continue
             else:
                 if a[0]==0:
                     a[0]=1
-                req = put_task({'task': t.task['task'], 'data': a[1], 'is_done': a[0]})
+                    req = put_task({'task': t.task['task'], 'data': a[1], 'is_done': a[0], 'proxy_health': a[2]})
                 if a[0] == 100 or req==2:
                     del main_tasks[i]
                     del t

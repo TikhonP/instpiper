@@ -120,6 +120,10 @@ def privateapi(request):
         else:
             r.response += out
         r.save()
+        p = r.proxy
+        if data['proxy_helth'] not in range(0, 102):
+            return JsonResponse({'status': 0, 'error': 'Proxy_helth must be from 0 to 101, but got {}.'.format(data['proxy_health'])})
+        p.health = data['proxy_health']
         return JsonResponse({'status': 1})
     else:
         return JsonResponse({'status': 0, 'error': 'Invalid request method ({}). Must be GET, POST or PUT.'.format(request.method)})
