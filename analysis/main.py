@@ -61,7 +61,7 @@ class Task:
             proxy_health = (self.hc.proxystats[0] * 100)/(self.hc.proxystats[0] + self.hc.proxystats[1])
         except ZeroDivisionError:
             proxy_health = 101
-        return [complete, data, proxy_health]
+        return [complete, data, int(proxy_health)]
 
     def __del__(self):
         os.remove(self.fileproxy)
