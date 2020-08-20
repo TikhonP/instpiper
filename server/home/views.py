@@ -6,7 +6,7 @@ from api.models import Token, Req, Proxy
 from django.contrib import messages
 import json
 import re
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, RegisterForm, PromoForm
 from secrets import token_hex
 
 
@@ -39,7 +39,9 @@ def main(request):
         return authed(request)
     else:
         if request.method == 'GET':
-            return render(request, 'main.html')
+            form = PromoForm()
+
+            return render(request, 'main.html', {'form': form})
         else:
             return HttpResponse('Invalid requsest method ({}) Must be GET'.format(request.method))
 
@@ -106,7 +108,7 @@ def authed(request):
 
         p = Proxy.objects.filter(author=request.user).order_by('-date')
         len_proxy = len(p)
-        
+
         lbp = len(p.filter(health__lt=60))
         params = {
             'user': request.user,
@@ -221,11 +223,23 @@ def makerequest(request):
             r = Req(author=t.author, token=t, data=data['data'],
                     proxy=proxy, is_id=data['is_id'], task=task, threads=data['threads'])
             r.save()
-        
+
             u = User.objects.get(id=t.author.id)
             u.profile.availible_threads -= data['threads']
             u.save()
-            
+
             return redirect('/')
         else:
             return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
+
+
+def promo_request(request):
+    if request.method == 'POST':
+        form = PromoForm(request.POST)
+        if form.is_valid():
+            text = form.cleaned_data
+
+
+    else:
+        return HttpResponse('Invalid requsest method ({}) Must be POST'.format(request.method))
+

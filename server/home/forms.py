@@ -1,8 +1,12 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from django.core import validators
-from api.models import Token, Req, Proxy
+# from django.core import validators
+# from api.models import Token, Req, Proxy
+import json
+
+with open('../config.json', 'r') as f:
+    max_promo_usernames = json.load(f)["max_promo_usernames"]
 
 
 class LoginForm(forms.Form):
@@ -20,6 +24,11 @@ class RegisterForm(forms.ModelForm):
         model = User
         fields = ('first_name', 'last_name', 'email', 'username', 'password')
     password1 = forms.CharField(max_length=20, label="Введите пароль ещё раз",  widget=forms.PasswordInput(attrs={'placeholder': '123321', "class": "form-control" }))
+
+
+class PromoForm(forms.Form):
+    usernames = forms.CharField(label="Юзернеймы, не больше {}".format(max_promo_usernames), widget=forms.Textarea(attrs={'placeholder': 'vasa223\nnikname', 'class': 'form-control'}))
+
 
 '''
 class MakerequestForm(forms.Form):

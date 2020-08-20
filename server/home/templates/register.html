@@ -1,19 +1,17 @@
-{% extends "base.html" %}
-{% load static %}
-
-{% block title %} · Регистрация{% endblock %}
-
+{% extends "base.html" %} 
+{% load static %} 
+{% block title %} · Регистрация{%endblock %} 
 {% block nav %}
 <li class="nav-item">
   <a class="nav-link" href="/login/">Войти</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">РЕГИСТРАЦИЯ</a>
+  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true"
+    >РЕГИСТРАЦИЯ</a
+  >
 </li>
-{% endblock %}
-
-{% block content %}
-
+{% endblock %} 
+{% block content %} 
 {% if messages %}
 <ul>
   {% for message in messages %}
@@ -24,20 +22,22 @@
 </ul>
 {% endif %}
 <form action="." method="post">
-  {% csrf_token %}
+  {% csrf_token %} 
   {% include "form.html" %}
   <div class="form-group">
     <div class="form-check">
-      <input required class="form-check-input" type="checkbox" id="gridCheck">
+      <input required class="form-check-input" type="checkbox" id="gridCheck" />
       <label class="form-check-label" for="gridCheck">
         Я согласен с <a href="/pages/privacy/">политикой конфиденциальности</a>
       </label>
     </div>
   </div>
   <div class="form-actions">
-    <button class="btn btn-primary btn-block" type="submit">Регистрация 🧱</button>
+    <button class="btn btn-primary btn-block" type="submit">
+      Регистрация 🧱
+    </button>
   </div>
 </form>
-<br>
+<br />
 
 {% endblock %}
