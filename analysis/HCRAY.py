@@ -238,9 +238,9 @@ class Producer():
             time.sleep(1)
 
 
-class HitlerClassifier(mp.Process):
+class MainClassifier(mp.Process):
     def __init__(self, proxypath, inputpath, process_count, input_desc):
-        super(HitlerClassifier, self).__init__()
+        super(MainClassifier, self).__init__()
         self.proxypath = proxypath
         self.inputpath = inputpath
         self.howmuch = 0
